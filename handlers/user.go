@@ -6,7 +6,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/lab7arriam/cryweb/models"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

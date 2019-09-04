@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/foolin/goview"
-	"github.com/foolin/goview/supports/echoview"
+	"github.com/foolin/goview/supports/echoview-v4"
 	"github.com/lab7arriam/cryweb/handlers"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2"
 )

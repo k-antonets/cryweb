@@ -2,6 +2,11 @@
 {{define "content"}}
     <div class="row">
         <main class="col-sm-8">
+            {{if "notification"}}
+                <div class="alert alert-{{"alert_type"}}">
+                    {{"notification"}}
+                </div>
+            {{end}}
             <h1>CryProcessor</h1>
             <p>CryProcessor is a python-written tool for searching and extracting Cry toxins from illumina sequence data or from the protein fasta files. It includes several parts: an hmm-based scanning for potential Cry toxins, obtaining information about the domains, extracting Cry toxins with 3 domains only and comparing found toxins with Bt nomenclature.</p>
 

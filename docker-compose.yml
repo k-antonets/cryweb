@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  app:
+    container_name: goapp
+    build: .
+    volumes:
+      - ./app_data:/data
+    ports:
+      - 1323:1323
+    command: -url=":1323" -mongo="mongo" -db="test"
+  mongo:
+    container_name: mongo
+    image: mongo
+    volumes:
+      - ./mongo_data:/data
+    ports:
+      - 27017:27017

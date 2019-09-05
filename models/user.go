@@ -1,6 +1,8 @@
 package models
 
 import (
+	"bytes"
+	"net/url"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -57,6 +59,40 @@ func (u *User) AddTask(id string) {
 
 func (u *User) IsAdmin() bool {
 	return u.Role == "admin"
+}
+
+func (u *User) getActivationMsg(secret string) []byte {
+	msg := &bytes.Buffer{}
+
+	msg.WriteString(u.Email)
+	msg.WriteString(u.FirstName)
+	msg.WriteString(u.LastName)
+	msg.WriteString(u.Organisation)
+	msg.WriteString(u.Created.Format(time.UnixDate))
+	msg.WriteString(secret)
+
+	return msg.Bytes()
+}
+
+func (u *User) GetActivationUrl(secret, server_url string) (string, error) {
+
+	hash, err := bcrypt.GenerateFromPassword(u.getActivationMsg(secret), bcrypt.MinCost)
+
+	if err != nil {
+		return "", err
+	}
+
+	q := url.Values{}
+	q.Add("email", u.Email)
+	q.Add("hash", string(hash))
+
+	ur := &url.URL{
+		Host:     server_url,
+		Path:     "activate",
+		RawQuery: q.Encode(),
+	}
+
+	return ur.String(), nil
 }
 
 func NewUser() *User {

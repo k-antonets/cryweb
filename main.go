@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/lab7arriam/cryweb/providers"
 	"net/http"
 
 	"github.com/foolin/goview"
@@ -14,10 +15,13 @@ import (
 )
 
 var (
-	url    = flag.String("url", ":8080", "Url to listen to")
-	mongo  = flag.String("mongo", "", "Url to mongo server")
-	mdb    = flag.String("db", "cry_processor", "Database to use")
-	jwtkey = flag.String("jwt", "secret", "jwt signing key")
+	url     = flag.String("url", ":8080", "Url to listen to")
+	mongo   = flag.String("mongo", "", "Url to mongo server")
+	mdb     = flag.String("db", "cry_processor", "Database to use")
+	jwtkey  = flag.String("jwt", "secret", "jwt signing key")
+	eserver = flag.String("smpt", "", "url to SMPT server")
+	elogin  = flag.String("elogin", "", "Login to SMPT server")
+	epass   = flag.String("epass", "", "Password to SMPT server")
 )
 
 func main() {
@@ -46,7 +50,13 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
-	h := &handlers.Handler{DB: db, Database: *mdb, Key: *jwtkey}
+	h := &handlers.Handler{
+		DB:       db,
+		Database: *mdb,
+		Key:      *jwtkey,
+		ES:       providers.NewEmailSender(providers.NewSmptClient(*eserver, *elogin, *epass), "templates/emails/*"),
+		Url:      *url,
+	}
 
 	e.Use(middleware.BodyLimit("400M"))
 

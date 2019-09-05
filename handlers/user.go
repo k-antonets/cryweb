@@ -91,6 +91,19 @@ func (h *Handler) Register(c echo.Context) error {
 		return indexAlerts(c, http.StatusBadRequest, "Failed to register new user", "danger")
 	}
 
+	link, err := u.GetActivationUrl(h.Key, h.Url)
+	if err != nil {
+		c.Logger().Error(err)
+		return indexAlerts(c, http.StatusBadRequest, "Failed to register new user", "danger")
+	}
+
+	if err := h.ES.Send([]string{u.Email}, "registered", echo.Map{
+		"link":    link,
+		"subject": "Registration at CryProcessor web server",
+	}); err != nil {
+		return indexAlerts(c, http.StatusBadGateway, "Failed to sent email with activation link", "danger")
+	}
+
 	return indexAlerts(c, http.StatusOK, "You were successfully registered. Please, activate your account with the link in the email.", "success")
 }
 

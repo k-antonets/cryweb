@@ -20,7 +20,7 @@ func (h *Handler) Login(c echo.Context) error {
 	}
 
 	if err := h.DB.DB(h.Database).
-		C("users").Find(bson.M{"email": u.Email}).One(u); err != nil {
+		C("users").FindId(u.Email).One(u); err != nil {
 		if err == mgo.ErrNotFound {
 			return indexAlerts(c, http.StatusUnauthorized, "Invalid email or password", "danger")
 		}
@@ -105,6 +105,92 @@ func (h *Handler) Register(c echo.Context) error {
 	}
 
 	return indexAlerts(c, http.StatusOK, "You were successfully registered. Please, activate your account with the link in the email.", "success")
+}
+
+func (h *Handler) Activate(c echo.Context) error {
+	email, hash, admin := c.FormValue("email"), c.FormValue("hash"), c.FormValue("admin")
+	v := validator.New()
+
+	if v.Var(email, "required,email") != nil || v.Var(hash, "required") != nil {
+		return indexAlerts(c, http.StatusBadGateway, "Wrong email or hash", "danger")
+	}
+
+	u := models.NewUser()
+
+	if err := h.DB.DB(h.Database).
+		C("users").FindId(email).One(u); err != nil {
+		if err == mgo.ErrNotFound {
+			return indexAlerts(c, http.StatusUnauthorized, "Invalid email or password", "danger")
+		}
+		c.Logger().Error(err)
+		return indexAlerts(c, http.StatusUnauthorized, "Invalid email or password", "danger")
+	}
+
+	if v.Var(admin, "required,email") == nil {
+		if !u.IsActive() {
+			uadmin := models.NewUser()
+			if err := h.DB.DB(h.Database).C("users").FindId(admin).One(uadmin); err != nil {
+				if err == mgo.ErrNotFound {
+					return indexAlerts(c, http.StatusUnauthorized, "Invalid email", "danger")
+				}
+				c.Logger().Error(err)
+				return indexAlerts(c, http.StatusUnauthorized, "Invalid email or password", "danger")
+			}
+
+			if !uadmin.IsAdmin() {
+				return indexAlerts(c, http.StatusForbidden, "You are not an admin!", "danger")
+			}
+
+			if !u.ActivateAdmin(h.Key, hash, admin) {
+				return indexAlerts(c, http.StatusBadRequest, "Invalid parameters", "danger")
+			}
+
+			if err := h.DB.DB(h.Database).C("users").UpdateId(email, bson.M{"$set": bson.M{"activated_by_admin": u.ActivatedByAdmin}}); err != nil {
+				c.Logger().Error(err)
+				return indexAlerts(c, http.StatusForbidden, "Invalid user email or hash", "danger")
+			}
+
+			if err := h.ES.Send([]string{u.Email}, "admin_registered", echo.Map{
+				"url":     h.Url,
+				"subject": "Account at CryProcessor web server is activated",
+			}); err != nil {
+				c.Logger().Error(err)
+				return indexAlerts(c, http.StatusBadGateway, "Internal server error", "danger")
+			}
+		}
+		return indexAlerts(c, http.StatusOK, "Account is activated", "success")
+	}
+
+	if !u.ActivateEmail(h.Key, hash) {
+		return indexAlerts(c, http.StatusForbidden, "Invalid email or hash", "danger")
+	}
+
+	if err := h.DB.DB(h.Database).C("users").UpdateId(email, bson.M{"$set": bson.M{"activated_by_email": u.ActivatedByMail}}); err != nil {
+		c.Logger().Error(err)
+		return indexAlerts(c, http.StatusForbidden, "Invalid email or hash", "danger")
+	}
+
+	aiter := h.DB.DB(h.Database).C("users").Find(bson.M{"role": "admin"}).Iter()
+	auser := models.NewUser()
+
+	for aiter.Next(auser) {
+		link, err := u.GetAdminActivationUrl(h.Key, h.Url, auser.Email)
+		if err != nil {
+			c.Logger().Error(err)
+			return indexAlerts(c, http.StatusBadRequest, "Internal server error", "danger")
+		}
+
+		if err := h.ES.Send([]string{auser.Email}, "admin_registered", echo.Map{
+			"link":    link,
+			"subject": "Registration at CryProcessor web server",
+			"user":    u,
+		}); err != nil {
+			c.Logger().Error(err)
+			return indexAlerts(c, http.StatusBadGateway, "Internal server error", "danger")
+		}
+	}
+
+	return indexAlerts(c, http.StatusOK, "Your email is confirmed. Your account is waiting for confirmation by admin. Your will be notified by email.", "success")
 }
 
 type jwtUserClaims struct {

@@ -81,6 +81,8 @@ func main() {
 		return c.Render(http.StatusOK, "pages/register", echo.Map{})
 	})
 
+	e.GET("/activate", h.Activate)
+
 	e.POST("/login", h.Login)
 
 	e.POST("/register", h.Register)

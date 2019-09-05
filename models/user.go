@@ -61,7 +61,7 @@ func (u *User) IsAdmin() bool {
 	return u.Role == "admin"
 }
 
-func (u *User) getActivationMsg(secret string) []byte {
+func (u *User) getActivationMsg(secret, admin string) []byte {
 	msg := &bytes.Buffer{}
 
 	msg.WriteString(u.Email)
@@ -70,13 +70,14 @@ func (u *User) getActivationMsg(secret string) []byte {
 	msg.WriteString(u.Organisation)
 	msg.WriteString(u.Created.Format(time.UnixDate))
 	msg.WriteString(secret)
+	msg.WriteString(admin)
 
 	return msg.Bytes()
 }
 
 func (u *User) GetActivationUrl(secret, server_url string) (string, error) {
 
-	hash, err := bcrypt.GenerateFromPassword(u.getActivationMsg(secret), bcrypt.MinCost)
+	hash, err := bcrypt.GenerateFromPassword(u.getActivationMsg(secret, ""), bcrypt.MinCost)
 
 	if err != nil {
 		return "", err
@@ -93,6 +94,44 @@ func (u *User) GetActivationUrl(secret, server_url string) (string, error) {
 	}
 
 	return ur.String(), nil
+}
+
+func (u *User) GetAdminActivationUrl(secret, server_url, admin string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword(u.getActivationMsg(secret, admin), bcrypt.MinCost)
+
+	if err != nil {
+		return "", err
+	}
+
+	q := url.Values{}
+	q.Add("email", u.Email)
+	q.Add("hash", string(hash))
+	q.Add("admin", admin)
+
+	ur := &url.URL{
+		Host:     server_url,
+		Path:     "activate",
+		RawQuery: q.Encode(),
+	}
+
+	return ur.String(), nil
+
+}
+
+func (u *User) ActivateEmail(secret, hash string) bool {
+	if err := bcrypt.CompareHashAndPassword(u.getActivationMsg(secret, ""), []byte(hash)); err != nil {
+		return false
+	}
+	u.ActivatedByMail = true
+	return true
+}
+
+func (u *User) ActivateAdmin(secret, hash, admin string) bool {
+	if err := bcrypt.CompareHashAndPassword(u.getActivationMsg(secret, admin), []byte(hash)); err != nil {
+		return false
+	}
+	u.ActivatedByAdmin = true
+	return true
 }
 
 func NewUser() *User {

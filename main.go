@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"github.com/lab7arriam/cryweb/providers"
+	"github.com/labstack/gommon/log"
+
 	"net/http"
 
 	"github.com/foolin/goview"
@@ -24,6 +26,7 @@ func main() {
 
 	viper.SetConfigName(*config)
 	viper.AddConfigPath("/run/secrets")
+	viper.AddConfigPath("/")
 	viper.AddConfigPath(".")
 
 	e := echo.New()
@@ -36,6 +39,7 @@ func main() {
 		Browse:  false,
 	}))
 	e.Use(middleware.Logger())
+	e.Logger.SetLevel(log.DEBUG)
 	e.Use(middleware.Recover())
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -53,6 +57,7 @@ func main() {
 		Partials:  []string{"assets/js", "assets/style", "assets/login"},
 	})
 
+	e.Logger.Info("Connecting to mongo at url: " + viper.GetString("mongo"))
 	db, err := mgo.Dial(viper.GetString("mongo"))
 	if err != nil {
 		e.Logger.Fatal(err)

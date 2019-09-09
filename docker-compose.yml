@@ -1,18 +1,34 @@
-version: '3'
+version: '3.7'
 
 services:
   app:
-    container_name: goapp
+    container_name: cry_goapp
     build: .
     #volumes:
     #  - ./app_data:/data
     ports:
       - 1323:1323
-    command: -url=":1323" -mongo="mongo" -db="test"
+    secrets:
+      - source: server_config
+        target: config.yml
+    command: -config="config"
+    networks:
+      - app_net
+    depends_on:
+      - mongo
   mongo:
-    container_name: mongo
-    image: mongo
+    container_name: cry_mongo
+    image: mongo:latest
     #volumes:
     # - ./mongo_data:/data
-    ports:
-      - 27017:27017
+    #ports:
+    #  - 27017:27017
+    networks:
+      - app_net
+
+secrets:
+  server_config:
+    file: ./config.yml
+
+networks:
+  app_net:

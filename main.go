@@ -10,9 +10,9 @@ import (
 	"github.com/lab7arriam/cryweb/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/spf13/viper"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -53,17 +53,20 @@ func main() {
 		Partials:  []string{"assets/js", "assets/style", "assets/login"},
 	})
 
-	db, err := mgo.Dial(*mongo)
+	db, err := mgo.Dial(viper.GetString("mongo"))
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
 
 	h := &handlers.Handler{
 		DB:       db,
-		Database: *mdb,
-		Key:      *jwtkey,
-		ES:       providers.NewEmailSender(providers.NewSmptClient(*eserver, *elogin, *epass), "templates/emails/*"),
-		Url:      *url,
+		Database: viper.GetString("database"),
+		Key:      viper.GetString("jwt_key"),
+		ES: providers.NewEmailSender(providers.NewSmptClient(viper.GetString("email.server"),
+			viper.GetString("email.login"),
+			viper.GetString("email.password")),
+			"templates/emails/*"),
+		Url: viper.GetString("url"),
 	}
 
 	e.Use(middleware.BodyLimit("400M"))

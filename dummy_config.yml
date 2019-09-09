@@ -1,1 +1,8 @@
 url: ":1234"
+mongo: "mongo"
+database: "test"
+jwt_key: "qwerty1234"
+email:
+  server: "localhost"
+  login: "user"
+  password: "password"

@@ -11,6 +11,7 @@ require (
 	github.com/labstack/echo/v4 v4.1.5
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/leodido/go-urn v1.1.0 // indirect
+	github.com/spf13/viper v1.4.0
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
 	gopkg.in/go-playground/validator.v9 v9.29.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22

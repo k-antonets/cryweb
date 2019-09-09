@@ -4,6 +4,8 @@ RUN mkdir /src && mkdir -p /app
 
 COPY ./ /src/
 
-RUN go build -o /app/server /src/
+WORKDIR /src/
+
+RUN go build -o /app/server .
 
 ENTRYPOINT ["/app/server"]

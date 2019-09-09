@@ -2,9 +2,9 @@
 {{define "content"}}
     <div class="row">
         <main class="col-sm-8">
-            {{if "notification"}}
-                <div class="alert alert-{{"alert_type"}}">
-                    {{"notification"}}
+            {{if .notification}}
+                <div class="alert alert-{{.alert_type}}">
+                    {{.notification}}
                 </div>
             {{end}}
             <h1>CryProcessor</h1>

@@ -12,20 +12,20 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mgo.v2"
+	"github.com/spf13/viper"
 )
 
 var (
-	url     = flag.String("url", ":8080", "Url to listen to")
-	mongo   = flag.String("mongo", "", "Url to mongo server")
-	mdb     = flag.String("db", "cry_processor", "Database to use")
-	jwtkey  = flag.String("jwt", "secret", "jwt signing key")
-	eserver = flag.String("smpt", "", "url to SMPT server")
-	elogin  = flag.String("elogin", "", "Login to SMPT server")
-	epass   = flag.String("epass", "", "Password to SMPT server")
+	config = flag.String("config", "config.cfg", "path ro config file")
 )
 
 func main() {
 	flag.Parse()
+
+	viper.SetConfigName(*config)
+	viper.AddConfigPath("/run/secrets")
+	viper.AddConfigPath(".")
+
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
@@ -37,6 +37,14 @@ func main() {
 	}))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			e.Logger.Fatal("config file not found: " + err.Error())
+		} else {
+			e.Logger.Fatal("error with reading config file: " + err.Error())
+		}
+	}
 
 	e.Renderer = echoview.New(goview.Config{
 		Root:      "templates",
@@ -87,7 +95,7 @@ func main() {
 
 	e.POST("/register", h.Register)
 
-	e.Logger.Fatal(e.Start(*url))
+	e.Logger.Fatal(e.Start(viper.GetString("url")))
 }
 
 type CustomValidator struct {

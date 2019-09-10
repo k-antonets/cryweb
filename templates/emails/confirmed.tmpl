@@ -1,18 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{"subject"}}</title>
-    {{block "style" .}}{{end}}
-</head>
-<body class="container">
-<div class="row">
-    <main class="col-sm-8">
-        <h1>{{"subject"}}</h1>
-        <p>
-            Your account has been activated. Now you can log in at <a href="{{"url"}}">the site</a> and run the CryProcessor.
-        </p>
-    </main>
-</div>
-
-</body>
-</html>
+{{ define "content" }}
+<p>
+    Your account has been activated. Now you can log in at <a href="{{"url"}}">the site</a> and run the CryProcessor.
+</p>
+{{ end }}

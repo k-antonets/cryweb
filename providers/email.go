@@ -1,10 +1,10 @@
 package providers
 
 import (
-	"html/template"
 	"net/smtp"
 	"strings"
 
+	"github.com/foolin/goview"
 	"github.com/labstack/echo/v4"
 )
 
@@ -31,23 +31,25 @@ func (s *SmptClient) SendMail(dest []string, msg string) error {
 }
 
 type EmailSender struct {
-	t *template.Template
+	t *goview.ViewEngine
 	c *SmptClient
 }
 
 func NewEmailSender(client *SmptClient, templates string) *EmailSender {
 	return &EmailSender{
-		t: template.Must(template.ParseGlob(templates)),
+		t: goview.New(goview.Config{
+			Root:      "templates/emails",
+			Extension: ".tmpl",
+			Master:    "layouts/base",
+			Partials:  []string{"assets/headers", "assets/style"},
+		}),
 		c: client,
 	}
 }
 
 func (es *EmailSender) Send(dest []string, template string, data echo.Map) error {
 	msg := &strings.Builder{}
-	if err := es.t.ExecuteTemplate(msg, "headers", data); err != nil {
-		return err
-	}
-	if err := es.t.ExecuteTemplate(msg, template, data); err != nil {
+	if err := es.t.RenderWriter(msg, template, data); err != nil {
 		return err
 	}
 

@@ -1,0 +1,18 @@
+{{ template "headers" . }}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{"subject"}}</title>
+    {{block "style" .}}{{end}}
+</head>
+<body class="container">
+<div class="row">
+    <main class="col-sm-8">
+    <h1>{{"subject"}}</h1>
+    {{ template "content" . }}
+    </main>
+</div>
+
+</body>
+</html>

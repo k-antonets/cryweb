@@ -1,29 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{"subject"}}</title>
-    {{block "style" .}}{{end}}
-</head>
-<body class="container">
-<div class="row">
-    <main class="col-sm-8">
-        <h1>{{"subject"}}</h1>
-        <p>
-            New user have been registered at CryProcessor web-server. Please, follow the link below to activate his account:
-        </p>
-        <a href="{{"link"}}" class="btn btn-dark">Activate</a>
-        <h3>
-            The information about user
-        </h3>
-        <ul>
-            <li>Email: {{"user.Email"}}</li>
-            <li>First Name: {{"user.FirstName"}}</li>
-            <li>Last Name: {{"user.LastName"}}</li>
-            <li>Country: {{"user.Country"}}</li>
-            <li>Organisation: {{"user.Organisation"}}</li>
-        </ul>
-    </main>
-</div>
-
-</body>
-</html>
+{{ define "content" }}
+<p>
+    New user have been registered at CryProcessor web-server. Please, follow the link below to activate his account:
+</p>
+<a href="{{"link"}}" class="btn btn-dark">Activate</a>
+<h3>
+    The information about user
+</h3>
+<ul>
+    <li>Email: {{"user.Email"}}</li>
+    <li>First Name: {{"user.FirstName"}}</li>
+    <li>Last Name: {{"user.LastName"}}</li>
+    <li>Country: {{"user.Country"}}</li>
+    <li>Organisation: {{"user.Organisation"}}</li>
+</ul>
+{{ end }}

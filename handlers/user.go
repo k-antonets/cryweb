@@ -101,6 +101,10 @@ func (h *Handler) Register(c echo.Context) error {
 		"link":    link,
 		"subject": "Registration at CryProcessor web server",
 	}); err != nil {
+		if err2 := h.DB.DB(h.Database).C("users").RemoveId(u.Email); err2 != nil {
+			c.Logger().Error(err2)
+		}
+		c.Logger().Error(err)
 		return indexAlerts(c, http.StatusBadGateway, "Failed to sent email with activation link", "danger")
 	}
 

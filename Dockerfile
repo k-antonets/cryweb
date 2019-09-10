@@ -6,6 +6,10 @@ COPY ./ /src/
 
 WORKDIR /src/
 
-RUN go build -o /app/server . && cd / && rm -rf /src
+RUN go build -o /app/server . && \
+    cp -R templates /app && \
+    cd / && rm -rf /src
+
+WORKDIR /app/
 
 ENTRYPOINT ["/app/server"]

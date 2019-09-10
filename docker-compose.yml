@@ -24,7 +24,9 @@ services:
     #ports:
     #  - 27017:27017
     networks:
-      - app_net
+      app_net:
+        aliases:
+            - cry_mongo
 
 secrets:
   server_config:

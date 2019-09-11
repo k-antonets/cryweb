@@ -69,9 +69,10 @@ func main() {
 		Key:      viper.GetString("jwt_key"),
 		ES: providers.NewEmailSender(providers.NewSmptClient(viper.GetString("email.server"),
 			viper.GetString("email.login"),
+			viper.GetString("email.name"),
 			viper.GetString("email.password")),
 			"templates/emails/*"),
-		Url: viper.GetString("url"),
+		Url: viper.GetString("domain"),
 	}
 
 	e.Use(middleware.BodyLimit("400M"))

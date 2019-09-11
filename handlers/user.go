@@ -92,15 +92,18 @@ func (h *Handler) Register(c echo.Context) error {
 	}
 
 	link, err := u.GetActivationUrl(h.Key, h.Url)
+	c.Logger().Infof("User activation link is <%#s>", link)
 	if err != nil {
 		c.Logger().Error(err)
 		return indexAlerts(c, http.StatusBadRequest, "Failed to register new user", "danger")
 	}
 
-	if err := h.ES.Send([]string{u.Email}, "registered", echo.Map{
-		"link":    link,
-		"subject": "Registration at CryProcessor web server",
-	}); err != nil {
+	if err := h.ES.Send([]string{u.Email},
+		"Registration at CryProcessor web server",
+		"registered",
+		echo.Map{
+			"link": link,
+		}); err != nil {
 		if err2 := h.DB.DB(h.Database).C("users").RemoveId(u.Email); err2 != nil {
 			c.Logger().Error(err2)
 		}
@@ -154,10 +157,11 @@ func (h *Handler) Activate(c echo.Context) error {
 				return indexAlerts(c, http.StatusForbidden, "Invalid user email or hash", "danger")
 			}
 
-			if err := h.ES.Send([]string{u.Email}, "admin_registered", echo.Map{
-				"url":     h.Url,
-				"subject": "Account at CryProcessor web server is activated",
-			}); err != nil {
+			if err := h.ES.Send([]string{u.Email},
+				"Account at CryProcessor web server is activated",
+				"admin_registered", echo.Map{
+					"url": h.Url,
+				}); err != nil {
 				c.Logger().Error(err)
 				return indexAlerts(c, http.StatusBadGateway, "Internal server error", "danger")
 			}
@@ -184,11 +188,12 @@ func (h *Handler) Activate(c echo.Context) error {
 			return indexAlerts(c, http.StatusBadRequest, "Internal server error", "danger")
 		}
 
-		if err := h.ES.Send([]string{auser.Email}, "admin_registered", echo.Map{
-			"link":    link,
-			"subject": "Registration at CryProcessor web server",
-			"user":    u,
-		}); err != nil {
+		if err := h.ES.Send([]string{auser.Email},
+			"Registration at CryProcessor web server",
+			"admin_registered", echo.Map{
+				"link": link,
+				"user": u,
+			}); err != nil {
 			c.Logger().Error(err)
 			return indexAlerts(c, http.StatusBadGateway, "Internal server error", "danger")
 		}

@@ -87,11 +87,12 @@ func (u *User) GetActivationUrl(secret, server_url string) (string, error) {
 	q.Add("email", u.Email)
 	q.Add("hash", string(hash))
 
-	ur := &url.URL{
-		Host:     server_url,
-		Path:     "activate",
-		RawQuery: q.Encode(),
+	ur, err := url.Parse(server_url)
+	if err != nil {
+		return "", err
 	}
+	ur.Path = "activate"
+	ur.RawQuery = q.Encode()
 
 	return ur.String(), nil
 }
@@ -108,11 +109,12 @@ func (u *User) GetAdminActivationUrl(secret, server_url, admin string) (string, 
 	q.Add("hash", string(hash))
 	q.Add("admin", admin)
 
-	ur := &url.URL{
-		Host:     server_url,
-		Path:     "activate",
-		RawQuery: q.Encode(),
+	ur, err := url.Parse(server_url)
+	if err != nil {
+		return "", err
 	}
+	ur.Path = "activate"
+	ur.RawQuery = q.Encode()
 
 	return ur.String(), nil
 

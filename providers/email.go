@@ -5,22 +5,24 @@ import (
 	"fmt"
 	"html/template"
 	"net"
+	"net/smtp"
 
 	"strings"
 
-	"github.com/emersion/go-sasl"
-	esmtp "github.com/emersion/go-smtp"
 	"github.com/foolin/goview"
+	"github.com/jordan-wright/email"
 	"github.com/labstack/echo/v4"
+	"github.com/vanng822/go-premailer/premailer"
 )
 
 type SmptClient struct {
 	Server   string
+	Name     string
 	Login    string
 	Password string
 }
 
-func NewSmptClient(server, login, password string) *SmptClient {
+func NewSmptClient(server, login, name, password string) *SmptClient {
 	return &SmptClient{
 		Server:   server,
 		Login:    login,
@@ -28,48 +30,19 @@ func NewSmptClient(server, login, password string) *SmptClient {
 	}
 }
 
-func (s *SmptClient) SendMail(dest []string, msg string) error {
+func (s *SmptClient) SendMail(dest []string, subject, msg string) error {
+	e := email.NewEmail()
 	host, _, _ := net.SplitHostPort(s.Server)
-	c, err := esmtp.DialTLS(s.Server, &tls.Config{
+	e.From = fmt.Sprintf("%s <%s>", s.Name, s.Login)
+	e.To = dest
+	e.Subject = subject
+	e.HTML = []byte(msg)
+	fmt.Println(e.From)
+	fmt.Println(msg)
+	return e.SendWithTLS(s.Server, smtp.PlainAuth("", s.Login, s.Password, host), &tls.Config{
 		InsecureSkipVerify: true,
 		ServerName:         host,
 	})
-	if err != nil {
-		return err
-	}
-
-	if err := c.Auth(sasl.NewPlainClient("", s.Login, s.Password)); err != nil {
-		return err
-	}
-
-	if err := c.Mail(s.Login); err != nil {
-		return err
-	}
-
-	for _, r := range dest {
-		if err := c.Rcpt(r); err != nil {
-			return err
-		}
-	}
-
-	wc, err := c.Data()
-	if err != nil {
-		return err
-	}
-
-	if _, err = fmt.Fprint(wc, msg); err != nil {
-		return err
-	}
-
-	if err = wc.Close(); err != nil {
-		return err
-	}
-
-	if err = c.Quit(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 type EmailSender struct {
@@ -90,13 +63,24 @@ func NewEmailSender(client *SmptClient, templates string) *EmailSender {
 	}
 }
 
-func (es *EmailSender) Send(dest []string, template string, data echo.Map) error {
+func (es *EmailSender) Send(dest []string, subject, template string, data echo.Map) error {
 	msg := &strings.Builder{}
 	data["sender"] = es.c.Login
 	data["recipient"] = dest
+	data["subject"] = subject
 	if err := es.t.RenderWriter(msg, template, data); err != nil {
 		return err
 	}
 
-	return es.c.SendMail(dest, strings.ReplaceAll(msg.String(), "\n", "\r\n"))
+	msgStr := strings.ReplaceAll(msg.String(), "\n", "\r\n")
+	prem, err := premailer.NewPremailerFromString(msgStr, premailer.NewOptions())
+	if err != nil {
+		return err
+	}
+	msgStr, err = prem.Transform()
+	if err != nil {
+		return err
+	}
+
+	return es.c.SendMail(dest, subject, msgStr)
 }

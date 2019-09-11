@@ -1,5 +1,6 @@
-{{ define  "headers" }}
-Subject: {{"subject"}}
+{{ define  "headers" }}From: {{.sender}}
+To: {{block "list" .recipient}}{{end}}
+Subject: {{.subject}}
 MIME-Version: 1.0
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable

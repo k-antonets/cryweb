@@ -3,6 +3,7 @@ package providers
 import (
 	"crypto/tls"
 	"fmt"
+	"html/template"
 	"net"
 
 	"strings"
@@ -82,7 +83,8 @@ func NewEmailSender(client *SmptClient, templates string) *EmailSender {
 			Root:      "templates/emails",
 			Extension: ".tmpl",
 			Master:    "layouts/base",
-			Partials:  []string{"assets/headers", "assets/style"},
+			Partials:  []string{"assets/headers", "assets/style", "assets/recipient"},
+			Funcs:     template.FuncMap{"join": strings.Join},
 		}),
 		c: client,
 	}
@@ -90,9 +92,11 @@ func NewEmailSender(client *SmptClient, templates string) *EmailSender {
 
 func (es *EmailSender) Send(dest []string, template string, data echo.Map) error {
 	msg := &strings.Builder{}
+	data["sender"] = es.c.Login
+	data["recipient"] = dest
 	if err := es.t.RenderWriter(msg, template, data); err != nil {
 		return err
 	}
 
-	return es.c.SendMail(dest, msg.String())
+	return es.c.SendMail(dest, strings.ReplaceAll(msg.String(), "\n", "\r\n"))
 }

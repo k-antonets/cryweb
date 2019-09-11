@@ -2,15 +2,15 @@
 <p>
     New user have been registered at CryProcessor web-server. Please, follow the link below to activate his account:
 </p>
-<a href="{{"link"}}" class="btn btn-dark">Activate</a>
+<a href="{{.link}}" class="btn btn-dark">Activate</a>
 <h3>
     The information about user
 </h3>
 <ul>
-    <li>Email: {{"user.Email"}}</li>
-    <li>First Name: {{"user.FirstName"}}</li>
-    <li>Last Name: {{"user.LastName"}}</li>
-    <li>Country: {{"user.Country"}}</li>
-    <li>Organisation: {{"user.Organisation"}}</li>
+    <li>Email: {{.user.Email}}</li>
+    <li>First Name: {{.user.FirstName}}</li>
+    <li>Last Name: {{.user.LastName}}</li>
+    <li>Country: {{.user.Country}}</li>
+    <li>Organisation: {{.user.Organisation}}</li>
 </ul>
 {{ end }}

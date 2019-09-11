@@ -1,9 +1,14 @@
 package providers
 
 import (
-	"net/smtp"
+	"crypto/tls"
+	"fmt"
+	"net"
+
 	"strings"
 
+	"github.com/emersion/go-sasl"
+	esmtp "github.com/emersion/go-smtp"
 	"github.com/foolin/goview"
 	"github.com/labstack/echo/v4"
 )
@@ -23,11 +28,47 @@ func NewSmptClient(server, login, password string) *SmptClient {
 }
 
 func (s *SmptClient) SendMail(dest []string, msg string) error {
-	m := "From: " + s.Login + "\n" +
-		"To: " + strings.Join(dest, ",") + "\n"
-	return smtp.SendMail(s.Server,
-		smtp.PlainAuth("", s.Login, s.Password, s.Server),
-		s.Login, dest, []byte(m))
+	host, _, _ := net.SplitHostPort(s.Server)
+	c, err := esmtp.DialTLS(s.Server, &tls.Config{
+		InsecureSkipVerify: true,
+		ServerName:         host,
+	})
+	if err != nil {
+		return err
+	}
+
+	if err := c.Auth(sasl.NewPlainClient("", s.Login, s.Password)); err != nil {
+		return err
+	}
+
+	if err := c.Mail(s.Login); err != nil {
+		return err
+	}
+
+	for _, r := range dest {
+		if err := c.Rcpt(r); err != nil {
+			return err
+		}
+	}
+
+	wc, err := c.Data()
+	if err != nil {
+		return err
+	}
+
+	if _, err = fmt.Fprint(wc, msg); err != nil {
+		return err
+	}
+
+	if err = wc.Close(); err != nil {
+		return err
+	}
+
+	if err = c.Quit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type EmailSender struct {

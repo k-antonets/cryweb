@@ -22,6 +22,10 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
+github.com/emersion/go-sasl v0.0.0-20190704090222-36b50694675c h1:Spm8jy+jWYG/Dn6ygbq/LBW/6M27kg59GK+FkKjexuw=
+github.com/emersion/go-sasl v0.0.0-20190704090222-36b50694675c/go.mod h1:G/dpzLu16WtQpBfQ/z3LYiYJn3ZhKSGWn83fyoyQe/k=
+github.com/emersion/go-smtp v0.11.2 h1:5PO2Kwsx+HXuytntCfMvcworC/iq45TPGkwjnaBZFSg=
+github.com/emersion/go-smtp v0.11.2/go.mod h1:byi9Y32SuKwjTJt9DO2tTWYjtF3lEh154tE1AcaJQSY=
 github.com/foolin/goview v0.2.0 h1:ovIVJmi2Lui+0obJ+NUhf2TN9mmV4hx5FA99oX1yH6U=
 github.com/foolin/goview v0.2.0/go.mod h1:hmQ++dSxBx8Uod3ZIpH+g2l1NSg/1Yc3kfNuLfY0EoI=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=

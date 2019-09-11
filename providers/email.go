@@ -25,6 +25,7 @@ type SmptClient struct {
 func NewSmptClient(server, login, name, password string) *SmptClient {
 	return &SmptClient{
 		Server:   server,
+		Name:     name,
 		Login:    login,
 		Password: password,
 	}
@@ -37,7 +38,6 @@ func (s *SmptClient) SendMail(dest []string, subject, msg string) error {
 	e.To = dest
 	e.Subject = subject
 	e.HTML = []byte(msg)
-	fmt.Println(e.From)
 	return e.SendWithTLS(s.Server, smtp.PlainAuth("", s.Login, s.Password, host), &tls.Config{
 		InsecureSkipVerify: true,
 		ServerName:         host,

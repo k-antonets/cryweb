@@ -92,7 +92,6 @@ func (h *Handler) Register(c echo.Context) error {
 	}
 
 	link, err := u.GetActivationUrl(h.Key, h.Url)
-	c.Logger().Infof("User activation link is <%#s>", link)
 	if err != nil {
 		c.Logger().Error(err)
 		return indexAlerts(c, http.StatusBadRequest, "Failed to register new user", "danger")

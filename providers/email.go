@@ -38,7 +38,6 @@ func (s *SmptClient) SendMail(dest []string, subject, msg string) error {
 	e.Subject = subject
 	e.HTML = []byte(msg)
 	fmt.Println(e.From)
-	fmt.Println(msg)
 	return e.SendWithTLS(s.Server, smtp.PlainAuth("", s.Login, s.Password, host), &tls.Config{
 		InsecureSkipVerify: true,
 		ServerName:         host,

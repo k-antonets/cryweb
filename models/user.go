@@ -76,7 +76,6 @@ func (u *User) getActivationMsg(secret, admin string) []byte {
 }
 
 func (u *User) GetActivationUrl(secret, server_url string) (string, error) {
-
 	hash, err := bcrypt.GenerateFromPassword(u.getActivationMsg(secret, ""), bcrypt.MinCost)
 
 	if err != nil {
@@ -121,7 +120,7 @@ func (u *User) GetAdminActivationUrl(secret, server_url, admin string) (string, 
 }
 
 func (u *User) ActivateEmail(secret, hash string) bool {
-	if err := bcrypt.CompareHashAndPassword(u.getActivationMsg(secret, ""), []byte(hash)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), u.getActivationMsg(secret, "")); err != nil {
 		return false
 	}
 	u.ActivatedByMail = true
@@ -129,7 +128,7 @@ func (u *User) ActivateEmail(secret, hash string) bool {
 }
 
 func (u *User) ActivateAdmin(secret, hash, admin string) bool {
-	if err := bcrypt.CompareHashAndPassword(u.getActivationMsg(secret, admin), []byte(hash)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(hash), u.getActivationMsg(secret, admin)); err != nil {
 		return false
 	}
 	u.ActivatedByAdmin = true

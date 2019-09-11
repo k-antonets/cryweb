@@ -118,7 +118,7 @@ func (h *Handler) Activate(c echo.Context) error {
 	v := validator.New()
 
 	if v.Var(email, "required,email") != nil || v.Var(hash, "required") != nil {
-		return indexAlerts(c, http.StatusBadGateway, "Wrong email or hash", "danger")
+		return indexAlerts(c, http.StatusBadGateway, "Invalid email or hash", "danger")
 	}
 
 	u := models.NewUser()
@@ -133,6 +133,9 @@ func (h *Handler) Activate(c echo.Context) error {
 	}
 
 	if v.Var(admin, "required,email") == nil {
+		if !u.ActivatedByMail {
+			return indexAlerts(c, http.StatusForbidden, "User didn't confirm the email address", "danger")
+		}
 		if !u.IsActive() {
 			uadmin := models.NewUser()
 			if err := h.DB.DB(h.Database).C("users").FindId(admin).One(uadmin); err != nil {
@@ -151,28 +154,35 @@ func (h *Handler) Activate(c echo.Context) error {
 				return indexAlerts(c, http.StatusBadRequest, "Invalid parameters", "danger")
 			}
 
-			if err := h.DB.DB(h.Database).C("users").UpdateId(email, bson.M{"$set": bson.M{"activated_by_admin": u.ActivatedByAdmin}}); err != nil {
+			if err := h.DB.DB(h.Database).C("users").UpdateId(email, u); err != nil {
 				c.Logger().Error(err)
 				return indexAlerts(c, http.StatusForbidden, "Invalid user email or hash", "danger")
 			}
 
 			if err := h.ES.Send([]string{u.Email},
 				"Account at CryProcessor web server is activated",
-				"admin_registered", echo.Map{
+				"confirmed", echo.Map{
 					"url": h.Url,
 				}); err != nil {
 				c.Logger().Error(err)
 				return indexAlerts(c, http.StatusBadGateway, "Internal server error", "danger")
 			}
+		} else {
+			return indexAlerts(c, http.StatusForbidden, "Invalid email or password", "danger")
 		}
 		return indexAlerts(c, http.StatusOK, "Account is activated", "success")
 	}
 
+	if u.ActivatedByMail {
+		return indexAlerts(c, http.StatusForbidden, "Invalid email or password", "danger")
+	}
+
 	if !u.ActivateEmail(h.Key, hash) {
+		c.Logger().Errorf("failed to activate: email <%s>, hash <%s>\n", email, hash)
 		return indexAlerts(c, http.StatusForbidden, "Invalid email or hash", "danger")
 	}
 
-	if err := h.DB.DB(h.Database).C("users").UpdateId(email, bson.M{"$set": bson.M{"activated_by_email": u.ActivatedByMail}}); err != nil {
+	if err := h.DB.DB(h.Database).C("users").UpdateId(email, u); err != nil {
 		c.Logger().Error(err)
 		return indexAlerts(c, http.StatusForbidden, "Invalid email or hash", "danger")
 	}

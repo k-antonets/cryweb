@@ -79,7 +79,8 @@ func main() {
 
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Skipper: func(c echo.Context) bool {
-			if c.Path() == "/" || c.Path() == "/register" || c.Path() == "/login" {
+			if c.Path() == "/" || c.Path() == "/register" || c.Path() == "/login" ||
+				c.Path() == "/activate" {
 				return true
 			}
 			return false

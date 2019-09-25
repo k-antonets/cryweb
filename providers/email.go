@@ -13,6 +13,8 @@ import (
 	"github.com/jordan-wright/email"
 	"github.com/labstack/echo/v4"
 	"github.com/vanng822/go-premailer/premailer"
+
+	"golang.org/x/net/html"
 )
 
 type SmptClient struct {
@@ -72,7 +74,10 @@ func (es *EmailSender) Send(dest []string, subject, template string, data echo.M
 	}
 
 	msgStr := strings.ReplaceAll(msg.String(), "\n", "\r\n")
-	prem, err := premailer.NewPremailerFromString(msgStr, premailer.NewOptions())
+	options := premailer.NewOptions()
+	options.RemoveClasses = true
+	options.CssToAttributes = true
+	prem, err := premailer.NewPremailerFromString(msgStr, options)
 	if err != nil {
 		return err
 	}
@@ -81,5 +86,28 @@ func (es *EmailSender) Send(dest []string, subject, template string, data echo.M
 		return err
 	}
 
-	return es.c.SendMail(dest, subject, msgStr)
+	doc, err := html.Parse(strings.NewReader(msgStr))
+	if err != nil {
+		return err
+	}
+
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			if c.Type == html.ElementNode && c.Data == "style" {
+				n.RemoveChild(c)
+				return
+			} else {
+				f(c)
+			}
+		}
+	}
+	f(doc)
+
+	finalMsg := &strings.Builder{}
+	if err := html.Render(finalMsg, doc); err != nil {
+		return err
+	}
+
+	return es.c.SendMail(dest, subject, finalMsg.String())
 }

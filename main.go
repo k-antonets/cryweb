@@ -84,20 +84,6 @@ func main() {
 	tools := e.Group("/tools")
 	cry_processor := tools.Group("/cry_processor")
 
-	e.Use(middleware.BodyLimit("400M"))
-
-	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-		Skipper: func(c echo.Context) bool {
-			if c.Path() == "/" || c.Path() == "/register" || c.Path() == "/login" ||
-				c.Path() == "/activate" {
-				return true
-			}
-			return false
-		},
-		SigningKey:  []byte(h.Key),
-		TokenLookup: "cookie:token",
-	}))
-
 	cry_processor.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/index", echo.Map{})
 	})
@@ -113,6 +99,18 @@ func main() {
 	cry_processor.POST("/login", h.Login)
 
 	cry_processor.POST("/register", h.Register)
+
+	user := cry_processor.Group("/user")
+
+	user.Use(middleware.BodyLimit("400M"))
+
+	user.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		Skipper: func(c echo.Context) bool {
+			return false
+		},
+		SigningKey:  []byte(h.Key),
+		TokenLookup: "cookie:token",
+	}))
 
 	e.Logger.Fatal(e.Start(viper.GetString("url")))
 }

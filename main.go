@@ -31,6 +31,12 @@ func main() {
 
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
+
+	// Rewrite to the tool
+	e.Pre(middleware.Rewrite(map[string]string{
+		"/*": "/tools/cry_processor/$1",
+	}))
+
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,
 		Root:    "/static",

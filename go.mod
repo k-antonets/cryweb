@@ -20,6 +20,7 @@ require (
 	github.com/vanng822/css v0.0.0-20190504095207-a21e860bcd04 // indirect
 	github.com/vanng822/go-premailer v0.0.0-20190504065308-ac25997d78c7
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586
+	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
 	gopkg.in/go-playground/validator.v9 v9.29.1
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 )

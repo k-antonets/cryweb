@@ -81,6 +81,9 @@ func main() {
 		Url: viper.GetString("domain"),
 	}
 
+	tools := e.Group("/tools")
+	cry_processor := tools.Group("/cry_processor")
+
 	e.Use(middleware.BodyLimit("400M"))
 
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
@@ -95,21 +98,21 @@ func main() {
 		TokenLookup: "cookie:token",
 	}))
 
-	e.GET("/", func(c echo.Context) error {
+	cry_processor.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/index", echo.Map{})
 	})
-	e.GET("/login", func(c echo.Context) error {
+	cry_processor.GET("/login", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/login", echo.Map{})
 	})
-	e.GET("/register", func(c echo.Context) error {
+	cry_processor.GET("/register", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/register", echo.Map{})
 	})
 
-	e.GET("/activate", h.Activate)
+	cry_processor.GET("/activate", h.Activate)
 
-	e.POST("/login", h.Login)
+	cry_processor.POST("/login", h.Login)
 
-	e.POST("/register", h.Register)
+	cry_processor.POST("/register", h.Register)
 
 	e.Logger.Fatal(e.Start(viper.GetString("url")))
 }

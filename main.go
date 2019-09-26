@@ -32,10 +32,7 @@ func main() {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 
-	// Rewrite to the tool
-	e.Pre(middleware.Rewrite(map[string]string{
-		"/*": "/tools/cry_processor/$1",
-	}))
+	e.Pre(middleware.AddTrailingSlash())
 
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,
@@ -81,26 +78,30 @@ func main() {
 		Url: viper.GetString("domain"),
 	}
 
+	e.GET("/", func(c echo.Context) error {
+		return c.Redirect(http.StatusMovedPermanently, "/tools/cry_processor")
+	})
+
 	tools := e.Group("/tools")
 	cry_processor := tools.Group("/cry_processor")
 
 	cry_processor.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/index", echo.Map{})
 	})
-	cry_processor.GET("/login", func(c echo.Context) error {
+	cry_processor.GET("/login/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/login", echo.Map{})
 	})
-	cry_processor.GET("/register", func(c echo.Context) error {
+	cry_processor.GET("/register/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/register", echo.Map{})
 	})
 
-	cry_processor.GET("/activate", h.Activate)
+	cry_processor.GET("/activate/", h.Activate)
 
-	cry_processor.POST("/login", h.Login)
+	cry_processor.POST("/login/", h.Login)
 
-	cry_processor.POST("/register", h.Register)
+	cry_processor.POST("/register/", h.Register)
 
-	user := cry_processor.Group("/user")
+	user := cry_processor.Group("/user/")
 
 	user.Use(middleware.BodyLimit("400M"))
 

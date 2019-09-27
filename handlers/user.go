@@ -57,6 +57,11 @@ func (h *Handler) Login(c echo.Context) error {
 		Value:  t,
 		MaxAge: int(expires / time.Second),
 	})
+
+	if c.FormValue("redirect_url") != "" {
+		return c.Redirect(http.StatusMovedPermanently, c.FormValue("redirect_url"))
+	}
+
 	return indexAlerts(c, http.StatusOK, "You are logged in!", "success")
 }
 

@@ -82,30 +82,39 @@ func main() {
 		return c.Redirect(http.StatusMovedPermanently, "/tools/cry_processor")
 	})
 
+	user := e.Group("/user")
+
+	user.GET("/login/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "pages/login", echo.Map{
+			"redirect_url": c.QueryParam("redirect_url"),
+		})
+	})
+	user.GET("/register/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "pages/register", echo.Map{
+			"action_url": e.Reverse("user.register"),
+		})
+	})
+
+	user.GET("/activate/", h.Activate)
+
+	user.POST("/login/", h.Login).Name = "user.login"
+
+	user.POST("/register/", h.Register).Name = "user.register"
+
 	tools := e.Group("/tools")
 	cry_processor := tools.Group("/cry_processor")
 
 	cry_processor.GET("/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "pages/index", echo.Map{})
-	})
-	cry_processor.GET("/login/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "pages/login", echo.Map{})
-	})
-	cry_processor.GET("/register/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "pages/register", echo.Map{})
+		return c.Render(http.StatusOK, "pages/index", echo.Map{
+			"login_url": "user.login",
+		})
 	})
 
-	cry_processor.GET("/activate/", h.Activate)
+	tasks := cry_processor.Group("/tasks/")
 
-	cry_processor.POST("/login/", h.Login)
+	tasks.Use(middleware.BodyLimit("400M"))
 
-	cry_processor.POST("/register/", h.Register)
-
-	user := cry_processor.Group("/user/")
-
-	user.Use(middleware.BodyLimit("400M"))
-
-	user.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+	tasks.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Skipper: func(c echo.Context) bool {
 			return false
 		},

@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-body">
             <h3 class="card-title">Login</h3>
-            <form action="/login" method="post">
+            <form action="{{ .login_url }}" method="post">
                 <div class="form-group row">
                     <label for="email" class="col-sm-4 col-form-label">Email</label>
                     <div class="col-sm-8">
@@ -23,6 +23,7 @@
                         <a href="/register" class="btn btn-link">Register</a>
                     </div>
                 </div>
+                <input type="hidden" name="redirect_url" value="{{ .redirect_url }}">
             </form>
         </div>
     </div>

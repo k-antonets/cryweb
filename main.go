@@ -106,7 +106,7 @@ func main() {
 
 	cry_processor.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/index", echo.Map{
-			"login_url": "user.login",
+			"login_url": e.Reverse("user.login"),
 		})
 	})
 

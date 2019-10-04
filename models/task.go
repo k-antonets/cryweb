@@ -9,6 +9,7 @@ import (
 
 type Task struct {
 	Id       bson.ObjectId     `json:"id" bson:"_id"`
+	Name     string            `json:"name" bson:"name,omitempty"`
 	Created  time.Time         `json:"created" bson:"created"`
 	Status   string            `json:"status" bson:"status"`
 	Finished time.Time         `json:"finished" bson:"finished,omitempty"`

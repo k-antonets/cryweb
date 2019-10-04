@@ -2,6 +2,10 @@ package main
 
 import (
 	"flag"
+	"html/template"
+	"strings"
+
+	"github.com/lab7arriam/cryweb/models"
 	"github.com/lab7arriam/cryweb/providers"
 	"github.com/labstack/gommon/log"
 
@@ -58,6 +62,10 @@ func main() {
 		Extension: ".tmpl",
 		Master:    "layouts/base",
 		Partials:  []string{"assets/js", "assets/style", "assets/login"},
+		Funcs: template.FuncMap{
+			"get_results_url": GetResultsResolver(e),
+			"capitalize":      strings.ToTitle,
+		},
 	})
 
 	e.Logger.Info("Connecting to mongo at url: " + viper.GetString("mongo"))
@@ -124,7 +132,7 @@ func main() {
 		})
 	}).Name = "tools.main"
 
-	tasks := tools.Group("/tasks/")
+	tasks := tools.Group("/tasks")
 
 	tasks.Use(middleware.BodyLimit("400M"))
 
@@ -136,6 +144,12 @@ func main() {
 		TokenLookup: "cookie:token",
 	}))
 
+	tasks.GET("/", h.TasksList).Name = "tasks.list"
+
+	tasks.GET("/results/:task/", func(context echo.Context) error {
+		return nil
+	}).Name = "tasks.result"
+
 	e.Logger.Fatal(e.Start(viper.GetString("url")))
 }
 
@@ -145,4 +159,10 @@ type CustomValidator struct {
 
 func (cv *CustomValidator) Validate(i interface{}) error {
 	return cv.validator.Struct(i)
+}
+
+func GetResultsResolver(e *echo.Echo) func(task *models.Task) string {
+	return func(task *models.Task) string {
+		return e.Reverse("tasks.result", task.Tool, task.Id)
+	}
 }

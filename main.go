@@ -79,19 +79,22 @@ func main() {
 	}
 
 	e.GET("/", func(c echo.Context) error {
-		return c.Redirect(http.StatusMovedPermanently, "/tools/cry_processor")
-	})
+		return c.Redirect(http.StatusMovedPermanently, e.Reverse("tools.main", "cry_processor"))
+	}).Name = "main.page"
 
 	user := e.Group("/user")
 
 	user.GET("/login/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/login", echo.Map{
 			"redirect_url": c.QueryParam("redirect_url"),
+			"register_url": e.Reverse("user.register"),
+			"login_url":    e.Reverse("user.login"),
 		})
 	})
 	user.GET("/register/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "pages/register", echo.Map{
 			"action_url": e.Reverse("user.register"),
+			"cancel_url": e.Reverse("main.page"),
 		})
 	})
 
@@ -101,16 +104,27 @@ func main() {
 
 	user.POST("/register/", h.Register).Name = "user.register"
 
-	tools := e.Group("/tools")
-	cry_processor := tools.Group("/cry_processor")
+	tools := e.Group("/tools/:tool")
 
-	cry_processor.GET("/", func(c echo.Context) error {
+	tools.GET("/", func(c echo.Context) error {
+		if c.Param("tool") != "cry_processor" {
+			return c.Render(http.StatusNotFound, "pages/index", echo.Map{
+				"tool_name":    c.Param("tool"),
+				"login_url":    e.Reverse("user.login"),
+				"register_url": e.Reverse("user.register"),
+				"notification": "Tool is not found",
+				"alert_type":   "error",
+			})
+		}
+		tool_name := "Cry Processor" // TODO: should be replaced by adding tools to db
 		return c.Render(http.StatusOK, "pages/index", echo.Map{
-			"login_url": e.Reverse("user.login"),
+			"tool_name":    tool_name,
+			"login_url":    e.Reverse("user.login"),
+			"register_url": e.Reverse("user.register"),
 		})
-	})
+	}).Name = "tools.main"
 
-	tasks := cry_processor.Group("/tasks/")
+	tasks := tools.Group("/tasks/")
 
 	tasks.Use(middleware.BodyLimit("400M"))
 

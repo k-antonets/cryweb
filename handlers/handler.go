@@ -12,3 +12,7 @@ type Handler struct {
 	ES       *providers.EmailSender
 	Url      string
 }
+
+func (h *Handler) D() *mgo.Database {
+	return h.DB.DB(h.Database)
+}

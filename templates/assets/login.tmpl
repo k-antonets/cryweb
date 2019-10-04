@@ -20,7 +20,7 @@
                         <button class="btn btn-dark" type="submit">Sign in</button>
                     </div>
                     <div class="col-sm-6">
-                        <a href="/register" class="btn btn-link">Register</a>
+                        <a href="{{ .register_url }}" class="btn btn-link">Register</a>
                     </div>
                 </div>
                 <input type="hidden" name="redirect_url" value="{{ .redirect_url }}">

@@ -146,6 +146,25 @@ func main() {
 
 	tasks.GET("/", h.TasksList).Name = "tasks.list"
 
+	tasks.GET("/add/", func(c echo.Context) error {
+		if c.Param("tool") != "cry_processor" {
+			return c.Render(http.StatusNotFound, "pages/index", echo.Map{
+				"tool_name":    c.Param("tool"),
+				"login_url":    e.Reverse("user.login"),
+				"register_url": e.Reverse("user.register"),
+				"notification": "Tool is not found",
+				"alert_type":   "error",
+			})
+		}
+		tool_name := "Cry Processor" // TODO: should be replaced by adding tools to db
+		return c.Render(http.StatusOK, "pages/index", echo.Map{
+			"tool_name":  tool_name,
+			"action_url": e.Reverse("tasks.add"),
+		})
+	})
+
+	tasks.POST("/add/", h.AddTask).Name = "tasks.add"
+
 	tasks.GET("/results/:task/", func(context echo.Context) error {
 		return nil
 	}).Name = "tasks.result"

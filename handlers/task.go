@@ -25,3 +25,7 @@ func (h *Handler) TasksList(c echo.Context) error {
 		"tasks": tasks,
 	})
 }
+
+func (h *Handler) AddTask(c echo.Context) error {
+	return nil
+}

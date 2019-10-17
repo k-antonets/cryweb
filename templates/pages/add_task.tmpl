@@ -1,41 +1,49 @@
 {{define "title"}}Create new task{{end}}
 {{define "content"}}
     <h1>Create new task</h1>
-<form action="{{ .action_url}}" method="post">
+<form action="{{ .action_url}}" method="post" class="accordion" id="add-task-form">
     <div class="mb-3">
         <h2>Select running mode</h2>
         <div class="form-row">
             <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" name="run_mode" id="single" value="single">
+                <input type="radio" class="form-check-input" name="run_mode" id="proteins" value="proteins" data-toggle="collapse" data-target="#fasta-file" aria-expanded="true" checked>
+                <label for="proteins" class="form-check-label">Proteins Sequences</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input type="radio" class="form-check-input" name="run_mode" id="single" value="single" data-toggle="collapse" data-target="#reads-file:not(.show)" aria-expanded="false">
                 <label for="single" class="form-check-label">Single Organism Illumina Reads</label>
             </div>
             <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" name="run_mode" id="meta" value="meta">
+                <input type="radio" class="form-check-input" name="run_mode" id="meta" value="meta" data-toggle="collapse" data-target="#reads-file:not(.show)" aria-expanded="false">
                 <label for="meta" class="form-check-label">Metagenome Illumina Reads</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input type="radio" class="form-check-input" name="run_mode" id="proteins" value="proteins">
-                <label for="proteins" class="form-check-label">Proteins Sequences</label>
             </div>
         </div>
     </div>
     <div class="mb-3">
         <h2>Upload data files</h2>
-        <div class="form-row" id="reads-file">
-            <div class="col-md-6 custom-file">
+        <div class="form-row collapse justify-content-between" id="reads-file" data-parent="#add-task-form">
+            <div class="col-md-4 custom-file">
                 <input type="file" class="custom-file-input" id="forward-reads" name="forward_reads">
-                <label for="forward-reads" class="custom-file-label"></label>
+                <label for="forward-reads" class="custom-file-label">Forward Reads FASTQ</label>
             </div>
-            <div class="col-md-6 custom-file">
+            <div class="col-md-4 custom-file">
                 <input type="file" class="custom-file-input" id="reverse-reads" name="reverse_reads">
-                <label for="reverse-reads" class="custom-file-label"></label>
+                <label for="reverse-reads" class="custom-file-label">Forward Reads FASTQ</label>
             </div>
         </div>
-        <div class="form-row" id="fasta-file">
+        <div class="form-row collapse show" aria-labelledby="proteins" id="fasta-file" data-parent="#add-task-form">
             <div class="col-md-12 custom-file">
                 <input type="file" class="custom-file-input" id="protein-seq" name="protein_seq">
-                <label for="protein-seq" class="custom-file-label"></label>
+                <label for="protein-seq" class="custom-file-label">Protein Sequences FASTA</label>
             </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="form-group row">
+            <div class="col-sm-6">
+                <button class="btn btn-dark">Create task</button>
+            </div>
+            <div class="col-sm-6"><a href="{{.cancel_url}}" class="btn btn-link">Cancel</a></div>
         </div>
     </div>
 </form>

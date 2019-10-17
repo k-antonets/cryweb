@@ -157,8 +157,8 @@ func main() {
 		tool_name := "Cry Processor" // TODO: should be replaced by adding tools to db
 		return c.Render(http.StatusOK, "pages/add_task", echo.Map{
 			"tool_name":  tool_name,
-			"action_url": e.Reverse("tasks.add", tool_name),
-			"cancel_url": e.Reverse("tasks.list", tool_name),
+			"action_url": e.Reverse("tasks.add", c.Param("tool")),
+			"cancel_url": e.Reverse("tasks.list", c.Param("tool")),
 		})
 	}).Name = "tasks.add_form"
 

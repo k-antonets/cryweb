@@ -75,7 +75,7 @@ func (u *User) getActivationMsg(secret, admin string) []byte {
 	return msg.Bytes()
 }
 
-func (u *User) GetActivationUrl(secret, server_url string) (string, error) {
+func (u *User) GetActivationUrl(secret, server_url, path string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword(u.getActivationMsg(secret, ""), bcrypt.MinCost)
 
 	if err != nil {
@@ -90,13 +90,13 @@ func (u *User) GetActivationUrl(secret, server_url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	ur.Path = "activate"
+	ur.Path = path
 	ur.RawQuery = q.Encode()
 
 	return ur.String(), nil
 }
 
-func (u *User) GetAdminActivationUrl(secret, server_url, admin string) (string, error) {
+func (u *User) GetAdminActivationUrl(secret, server_url, path, admin string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword(u.getActivationMsg(secret, admin), bcrypt.MinCost)
 
 	if err != nil {
@@ -112,7 +112,7 @@ func (u *User) GetAdminActivationUrl(secret, server_url, admin string) (string, 
 	if err != nil {
 		return "", err
 	}
-	ur.Path = "activate"
+	ur.Path = path
 	ur.RawQuery = q.Encode()
 
 	return ur.String(), nil

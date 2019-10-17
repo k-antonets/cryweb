@@ -84,6 +84,9 @@ func main() {
 			viper.GetString("email.password")),
 			"templates/emails/*"),
 		Url: viper.GetString("domain"),
+		Route: func(name string, params ...interface{}) string {
+			return e.Reverse(name, params)
+		},
 	}
 
 	e.GET("/", func(c echo.Context) error {
@@ -106,7 +109,7 @@ func main() {
 		})
 	})
 
-	user.GET("/activate/", h.Activate)
+	user.GET("/activate/", h.Activate).Name = "user.activate"
 
 	user.POST("/login/", h.Login).Name = "user.login"
 

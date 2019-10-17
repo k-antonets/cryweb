@@ -18,7 +18,7 @@ func (h *Handler) TasksList(c echo.Context) error {
 	var tasks []*models.Task
 
 	if err := h.DbTask().Find(bson.M{"tool": tool, "user_id": user_id}).Sort("-created").All(&tasks); err != nil {
-		return indexAlerts(c, http.StatusBadGateway, "failed to get list of tasks", "error")
+		return h.indexAlert(c, http.StatusBadGateway, "failed to get list of tasks", "error")
 	}
 
 	return c.Render(http.StatusOK, "pages/tasks", echo.Map{

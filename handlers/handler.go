@@ -11,6 +11,7 @@ type Handler struct {
 	Key      string
 	ES       *providers.EmailSender
 	Url      string
+	Route    func(name string, params ...interface{}) string
 }
 
 func (h *Handler) D() *mgo.Database {

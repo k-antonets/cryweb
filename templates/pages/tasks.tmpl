@@ -1,26 +1,30 @@
 {{define "title"}}Tasks {{end}}
 {{define "content"}}
-    <a href="{{.add_task_url}}" class="btn btn-dark">Create New Task</a>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Status</th>
-            <th scope="col">Created</th>
-            <th scope="col">Results</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{range $i,$t := .tasks}}
+    <div class="mb-3">
+        <a href="{{.add_task_url}}" class="btn btn-dark">Create New Task</a>
+    </div>
+    <div class="mb-3">
+        <table class="table">
+            <thead>
             <tr>
-                <th scope="row">{{ $i }}</th>
-                <td>{{ $t.Name }}</td>
-                <td class="text-{{if $t.Removed}}danger{{else}}dark{{end}}">{{ capitalize $t.Status }}</td>
-                <td>{{ $t.Created }}</td>
-                <td>{{ get_results_url $t }}</td>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Created</th>
+                <th scope="col">Results</th>
             </tr>
-        {{end}}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {{range $i,$t := .tasks}}
+                <tr>
+                    <th scope="row">{{ $i }}</th>
+                    <td>{{ $t.Name }}</td>
+                    <td class="text-{{if $t.Removed}}danger{{else}}dark{{end}}">{{ capitalize $t.Status }}</td>
+                    <td>{{ $t.Created }}</td>
+                    <td>{{ get_results_url $t }}</td>
+                </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
 {{end}}

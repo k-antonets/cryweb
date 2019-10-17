@@ -85,7 +85,7 @@ func main() {
 			"templates/emails/*"),
 		Url: viper.GetString("domain"),
 		Route: func(name string, params ...interface{}) string {
-			return e.Reverse(name, params)
+			return e.Reverse(name, params...)
 		},
 	}
 

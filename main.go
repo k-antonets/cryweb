@@ -143,6 +143,7 @@ func main() {
 		Skipper: func(c echo.Context) bool {
 			return false
 		},
+		Claims:      &handlers.JwtUserClaims{},
 		SigningKey:  []byte(h.Key),
 		TokenLookup: "cookie:token",
 	}))
@@ -159,7 +160,7 @@ func main() {
 			"action_url": e.Reverse("tasks.add", tool_name),
 			"cancel_url": e.Reverse("tasks.list", tool_name),
 		})
-	})
+	}).Name = "tasks.add_form"
 
 	tasks.POST("/add/", h.AddTask).Name = "tasks.add"
 

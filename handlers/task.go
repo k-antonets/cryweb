@@ -12,7 +12,7 @@ import (
 func (h *Handler) TasksList(c echo.Context) error {
 	tool := c.Param("tool")
 	userJwt := c.Get("user").(*jwt.Token)
-	claims := userJwt.Claims.(*jwtUserClaims)
+	claims := userJwt.Claims.(*JwtUserClaims)
 	user_id := claims.Email
 
 	var tasks []*models.Task
@@ -22,7 +22,8 @@ func (h *Handler) TasksList(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "pages/tasks", echo.Map{
-		"tasks": tasks,
+		"tasks":        tasks,
+		"add_task_url": h.Route("tasks.add_form", tool),
 	})
 }
 

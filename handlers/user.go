@@ -39,7 +39,7 @@ func (h *Handler) Login(c echo.Context) error {
 
 	expires := time.Hour * 24
 
-	claims := &jwtUserClaims{
+	claims := &JwtUserClaims{
 		Email: u.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(expires).Unix(),
@@ -56,6 +56,7 @@ func (h *Handler) Login(c echo.Context) error {
 		Name:   "token",
 		Value:  t,
 		MaxAge: int(expires / time.Second),
+		Path:   "/",
 	})
 
 	if c.FormValue("redirect_url") != "" {
@@ -216,7 +217,7 @@ func (h *Handler) Activate(c echo.Context) error {
 	return h.indexAlert(c, http.StatusOK, "Your email is confirmed. Your account is waiting for confirmation by admin. Your will be notified by email.", "success")
 }
 
-type jwtUserClaims struct {
+type JwtUserClaims struct {
 	Email string `json:"email"`
 	jwt.StandardClaims
 }

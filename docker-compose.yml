@@ -16,6 +16,7 @@ services:
       - app_net
     depends_on:
       - mongo
+      - celery
   mongo:
     container_name: cry_mongo
     image: mongo:latest
@@ -27,6 +28,26 @@ services:
       app_net:
         aliases:
             - cry_mongo
+  redis:
+    container_name: cry_redis
+    image: redis:latest
+    networks:
+      - app_net
+  celery:
+    container_name: cry_celery
+    build:
+      context: ./containers
+      dockerfile: celery.dockerfile
+    environment:
+      CELERY_TASK_SERIALIZER: 'json'
+      CELERY_ACCEPT_CONTENT: ['json']
+      CELERY_RESULT_SERIALIZER: 'json'
+      CELERY_ENABLE_UTC: 'True'
+      CELERY_TASK_PROTOCOL: 1
+    networks:
+      - app_net
+    depends_on:
+      - redis
 
 secrets:
   server_config:

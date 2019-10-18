@@ -26,12 +26,14 @@ func NewTask(user, tool, tmpDir string) (*Task, error) {
 		return nil, err
 	}
 	return &Task{
+		Id:      bson.NewObjectId(),
 		Created: time.Now(),
 		Status:  "created",
 		WorkDir: work_dir,
 		Removed: false,
 		UserId:  user,
 		Tool:    tool,
+		Params:  make(map[string]string),
 	}, nil
 }
 
@@ -40,4 +42,8 @@ func (t *Task) ResultAvailable(user string) bool {
 		return false
 	}
 	return true
+}
+
+func (t *Task) AddParam(name, value string) {
+	t.Params[name] = value
 }

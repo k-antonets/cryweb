@@ -12,6 +12,7 @@ type Handler struct {
 	ES       *providers.EmailSender
 	Url      string
 	Route    func(name string, params ...interface{}) string
+	WorkDir  string
 }
 
 func (h *Handler) D() *mgo.Database {

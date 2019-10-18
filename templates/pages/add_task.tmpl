@@ -1,7 +1,7 @@
 {{define "title"}}Create new task{{end}}
 {{define "content"}}
     <h1>Create new task</h1>
-<form action="{{ .action_url}}" method="post" class="accordion" id="add-task-form">
+<form action="{{ .action_url}}" method="post" class="accordion" id="add-task-form" enctype="multipart/form-data">
     <div class="mb-3">
         <h2>Select running mode</h2>
         <div class="form-row">

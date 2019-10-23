@@ -82,7 +82,7 @@ func (h *Handler) AddTask(c echo.Context) error {
 			return h.indexAlert(c, http.StatusBadRequest, "malformed request", "error")
 		}
 		if mode == "meta" {
-			task.AddParam("meta", "")
+			task.AddParam("meta", "meta")
 		}
 	}
 

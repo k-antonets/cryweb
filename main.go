@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/lab7arriam/cryweb/task_queue"
 	"html/template"
 	"strings"
 
@@ -73,6 +74,9 @@ func main() {
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
+
+	e.Logger.Info("Creating celery worker client")
+	task_queue.Init(viper.GetString("redis_url"), viper.GetInt("workers_number"))
 
 	h := &handlers.Handler{
 		DB:       db,

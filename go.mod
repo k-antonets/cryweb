@@ -10,13 +10,17 @@ require (
 	github.com/foolin/goview v0.2.0
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.0 // indirect
+	github.com/gocelery/gocelery v0.0.0-20191008025616-26dc580ba02e
+	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jordan-wright/email v0.0.0-20190819015918-041e0cec78b0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.1.5
 	github.com/labstack/gommon v0.3.0
 	github.com/leodido/go-urn v1.1.0 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/spf13/viper v1.4.0
+	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271 // indirect
 	github.com/vanng822/css v0.0.0-20190504095207-a21e860bcd04 // indirect
 	github.com/vanng822/go-premailer v0.0.0-20190504065308-ac25997d78c7
 	golang.org/x/crypto v0.0.0-20190820162420-60c769a6c586

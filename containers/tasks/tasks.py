@@ -26,4 +26,5 @@ def cryprocess(run_mode, fi, fr, rr, meta, wd, th):
 
 @app.task
 def full_cry(run_mode, fi, fr, rr, meta, wd, th):
-    chain(cryprocess.s(run_mode, fi, fr, rr, meta, wd, th), finalize.s())
+    cp=cryprocess.s(run_mode, fi, fr, rr, meta, wd, th)()
+    app.send_task("finalize", cp, serializer='json')

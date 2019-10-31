@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"github.com/lab7arriam/cryweb/task_queue"
 	"html/template"
 	"strings"
 
@@ -76,7 +75,6 @@ func main() {
 	}
 
 	e.Logger.Info("Creating celery worker client")
-	task_queue.Init(viper.GetString("redis_url"), viper.GetInt("workers_number"))
 
 	h := &handlers.Handler{
 		DB:       db,
@@ -92,6 +90,8 @@ func main() {
 			return e.Reverse(name, params...)
 		},
 	}
+
+	h.InitCelery(viper.GetString("redis_url"), viper.GetInt("workers_number"))
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, e.Reverse("tools.main", "cry_processor"))

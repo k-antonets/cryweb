@@ -47,3 +47,11 @@ func (t *Task) ResultAvailable(user string) bool {
 func (t *Task) AddParam(name, value string) {
 	t.Params[name] = value
 }
+
+func (t *Task) GetParam(name string) string {
+	if result, ok := t.Params[name]; ok {
+		return result
+	} else {
+		return ""
+	}
+}

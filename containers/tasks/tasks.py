@@ -1,6 +1,8 @@
 from celery import Celery
+from celery import chain
 from cry_processor import Crylauncher
 from os import path
+import subprocess
 
 app = Celery("tasks", broker="redis://redis:6379/", backend="redis://redis:6379/")
 
@@ -18,3 +20,10 @@ def cryprocess(run_mode, fi, fr, rr, meta, wd, th):
     if meta:
         meta = True
     Crylauncher.LaunchProcessor(od, fi, hm, pr, th, ma, r, a, nu, mra, k, fr, rr, meta, s, f)
+
+    subprocess.call("zip -r cry_result.zip cry", shell=True)
+    return wd
+
+@app.task
+def full_cry(run_mode, fi, fr, rr, meta, wd, th):
+    chain(cryprocess.s(run_mode, fi, fr, rr, meta, wd, th), finalize.s())

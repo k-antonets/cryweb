@@ -54,7 +54,17 @@ func (h *Handler) InitCelery(redis_url string, w int) error {
 		return err
 	}
 
-	finalize := func(wd string) (bool, string) {
+	cry_processing := func(run_mode, fi, fr, rr, meta, wd string) (bool, string) {
+		aresult, err := cli.Delay("cryprocess", run_mode, fi, fr, rr, meta, wd, h.Threads)
+		if err != nil {
+			return false, err.Error()
+		}
+
+		_, err = aresult.Get(time.Hour * 24 * 7) //TODO: extract timeout to config
+		if err != nil {
+			return false, err.Error()
+		}
+
 		var task *models.Task
 
 		if err := h.DbTask().Find(bson.M{"work_dir": wd}).One(task); err != nil {
@@ -80,7 +90,7 @@ func (h *Handler) InitCelery(redis_url string, w int) error {
 		return true, ""
 	}
 
-	cli.Register("finalize", finalize)
+	cli.Register("go_cry", cry_processing)
 
 	cli.StartWorker()
 

@@ -23,8 +23,3 @@ def cryprocess(run_mode, fi, fr, rr, meta, wd, th):
 
     subprocess.call("zip -r cry_result.zip cry", shell=True)
     return wd
-
-@app.task
-def full_cry(run_mode, fi, fr, rr, meta, wd, th):
-    cp=cryprocess.s(run_mode, fi, fr, rr, meta, wd, th)()
-    app.send_task("finalize", cp, serializer='json')

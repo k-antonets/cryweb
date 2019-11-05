@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"time"
 )
 
@@ -55,10 +56,12 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	}
 
 	cry_processing := func(run_mode, fi, fr, rr, meta, wd string) (bool, string) {
+		log.Printf("begin sending new task to pyCelery with directory: %s\n", wd)
 		aresult, err := cli.DelayToQueue("cryprocess", "cry_py", run_mode, fi, fr, rr, meta, wd, h.Threads)
 		if err != nil {
 			return false, err.Error()
 		}
+		log.Printf("finished creating the task to pyCelery with directory %s\n", wd)
 
 		_, err = aresult.Get(time.Hour * time.Duration(timeout))
 		if err != nil {
@@ -90,8 +93,10 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 		return true, ""
 	}
 
+	log.Println("registering new task go_cry")
 	cli.Register("go_cry", cry_processing)
 
+	log.Println("starting workers")
 	cli.StartWorker()
 
 	h.Celery = cli

@@ -1,5 +1,7 @@
 from celery import Celery
-from celery import chain
+import sys
+sys.path.insert(1, '/cry_processor/')
+
 from cry_processor import Crylauncher
 from os import path
 import subprocess

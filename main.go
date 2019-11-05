@@ -91,7 +91,9 @@ func main() {
 		},
 	}
 
-	h.InitCelery(viper.GetString("redis_url"), viper.GetInt("workers_number"))
+	if err := h.InitCelery(viper.GetString("redis_url"), viper.GetInt("workers_number")); err != nil {
+		e.Logger.Error(err)
+	}
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, e.Reverse("tools.main", "cry_processor"))

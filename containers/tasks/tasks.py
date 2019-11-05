@@ -8,6 +8,8 @@ import subprocess
 
 app = Celery("tasks", broker="redis://redis:6379/", backend="redis://redis:6379/")
 
+app.conf.default_queue = 'cry_py'
+
 @app.task
 def cryprocess(run_mode, fi, fr, rr, meta, wd, th):
     hm, pr, ma, r, a, nu, mra, k, s, f = '', 1, '', 'do', False, '', False, 21, True, True

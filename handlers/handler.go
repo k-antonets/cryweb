@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/gocelery/gocelery"
 	"github.com/gomodule/redigo/redis"
+	"github.com/k-antonets/gocelery"
 	"github.com/lab7arriam/cryweb/models"
 	"github.com/lab7arriam/cryweb/providers"
 	"github.com/labstack/echo/v4"
@@ -35,7 +35,7 @@ func (h *Handler) DbTask() *mgo.Collection {
 	return h.D().C("tasks")
 }
 
-func (h *Handler) InitCelery(redis_url string, w int) error {
+func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	redisPool := &redis.Pool{
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.DialURL(redis_url)
@@ -47,7 +47,7 @@ func (h *Handler) InitCelery(redis_url string, w int) error {
 	}
 
 	cli, err := gocelery.NewCeleryClient(
-		gocelery.NewRedisBroker(redisPool),
+		gocelery.NewRedisBroker(redisPool, "cry_go"),
 		&gocelery.RedisCeleryBackend{Pool: redisPool},
 		w)
 	if err != nil {
@@ -55,12 +55,12 @@ func (h *Handler) InitCelery(redis_url string, w int) error {
 	}
 
 	cry_processing := func(run_mode, fi, fr, rr, meta, wd string) (bool, string) {
-		aresult, err := cli.Delay("cryprocess", run_mode, fi, fr, rr, meta, wd, h.Threads)
+		aresult, err := cli.DelayToQueue("cryprocess", "cry_py", run_mode, fi, fr, rr, meta, wd, h.Threads)
 		if err != nil {
 			return false, err.Error()
 		}
 
-		_, err = aresult.Get(time.Hour * 24 * 7) //TODO: extract timeout to config
+		_, err = aresult.Get(time.Hour * time.Duration(timeout))
 		if err != nil {
 			return false, err.Error()
 		}

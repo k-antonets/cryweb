@@ -74,8 +74,6 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
-	e.Logger.Info("Creating celery worker client")
-
 	h := &handlers.Handler{
 		DB:       db,
 		Database: viper.GetString("database"),
@@ -89,9 +87,14 @@ func main() {
 		Route: func(name string, params ...interface{}) string {
 			return e.Reverse(name, params...)
 		},
+		Threads: viper.GetInt("threads"),
 	}
 
-	if err := h.InitCelery(viper.GetString("redis_url"), viper.GetInt("workers_number")); err != nil {
+	e.Logger.Info("Creating celery worker client")
+
+	if err := h.InitCelery(viper.GetString("redis_url"),
+		viper.GetInt("workers_number"),
+		viper.GetInt("timeout")); err != nil {
 		e.Logger.Error(err)
 	}
 

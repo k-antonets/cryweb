@@ -6,4 +6,4 @@ ADD ./tasks/ /app/
 
 WORKDIR /app
 
-ENTRYPOINT celery -A tasks worker -l info
+ENTRYPOINT celery -A tasks worker -l info -Q cry_py

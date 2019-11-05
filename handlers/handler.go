@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/gocelery/gocelery"
 	"github.com/gomodule/redigo/redis"
+	"github.com/k-antonets/gocelery"
 	"github.com/lab7arriam/cryweb/models"
 	"github.com/lab7arriam/cryweb/providers"
 	"github.com/labstack/echo/v4"
@@ -47,7 +47,7 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	}
 
 	cli, err := gocelery.NewCeleryClient(
-		gocelery.NewRedisBroker(redisPool),
+		gocelery.NewRedisBroker(redisPool, "cry_go"),
 		&gocelery.RedisCeleryBackend{Pool: redisPool},
 		w)
 	if err != nil {
@@ -55,7 +55,7 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	}
 
 	cry_processing := func(run_mode, fi, fr, rr, meta, wd string) (bool, string) {
-		aresult, err := cli.Delay("cryprocess", run_mode, fi, fr, rr, meta, wd, h.Threads)
+		aresult, err := cli.DelayToQueue("cryprocess", "cry_py", run_mode, fi, fr, rr, meta, wd, h.Threads)
 		if err != nil {
 			return false, err.Error()
 		}

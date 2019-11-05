@@ -93,7 +93,7 @@ func (h *Handler) AddTask(c echo.Context) error {
 
 	if _, err := h.Celery.Delay("go_cry", task.GetParam("run_mode"), task.GetParam("fi"),
 		task.GetParam("fo"), task.GetParam("re"), task.GetParam("meta"),
-		task.WorkDir, h.Threads); err != nil {
+		task.WorkDir); err != nil {
 		c.Logger().Error(err)
 		return h.indexAlert(c, http.StatusBadGateway, "failed to create task", "error")
 	}

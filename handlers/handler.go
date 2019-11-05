@@ -35,7 +35,7 @@ func (h *Handler) DbTask() *mgo.Collection {
 	return h.D().C("tasks")
 }
 
-func (h *Handler) InitCelery(redis_url string, w int) error {
+func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	redisPool := &redis.Pool{
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.DialURL(redis_url)
@@ -60,7 +60,7 @@ func (h *Handler) InitCelery(redis_url string, w int) error {
 			return false, err.Error()
 		}
 
-		_, err = aresult.Get(time.Hour * 24 * 7) //TODO: extract timeout to config
+		_, err = aresult.Get(time.Hour * time.Duration(timeout))
 		if err != nil {
 			return false, err.Error()
 		}

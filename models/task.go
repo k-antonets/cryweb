@@ -44,6 +44,10 @@ func (t *Task) ResultExists() bool {
 	return true
 }
 
+func (t *Task) IsRunning() bool {
+	return t.Status == "running"
+}
+
 func (t *Task) ResultAvailable(user string) bool {
 	if user != t.UserId || !t.ResultExists() {
 		return false

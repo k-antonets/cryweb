@@ -19,9 +19,9 @@
                 <tr>
                     <th scope="row">{{ $i }}</th>
                     <td>{{ $t.Name }}</td>
-                    <td class="text-{{if $t.Removed}}danger{{else}}dark{{end}}">{{ capitalize $t.Status }}</td>
-                    <td>{{ $t.Created }}</td>
-                    <td>{{ if get_results_url $t }}<a href="{{ get_results_url $t }}">Download</a>
+                    <td class="text-{{if $t.Removed}}danger{{else if $t.IsRunning}}warning{{else if $t.ResultExists}}success{{else}}dark{{end}}">{{ capitalize $t.Status }}</td>
+                    <td>{{ $t.Created.Format "02.01.06 15:04" }}</td>
+                    <td>{{ if $t.ResultExists }}<a href="{{ get_results_url $t }}">Download</a>
                         {{else}}Not available{{end}}
                     </td>
                 </tr>

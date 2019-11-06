@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -122,8 +123,14 @@ func (h *Handler) GetResults(c echo.Context) error {
 	}
 
 	filename := path.Join(task.WorkDir, "cry_result.zip")
+	name := task.Name
 
-	return c.File(filename)
+	if name == "" {
+		name = "result"
+	}
+	name = fmt.Sprintf("%s.zip", name)
+
+	return c.Attachment(filename, name)
 }
 
 func saveFile(ctx echo.Context, name, param string, t *models.Task) error {

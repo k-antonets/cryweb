@@ -14,6 +14,7 @@ app.conf.default_queue = 'cry_py'
 def cryprocess(run_mode, fi, fr, rr, meta, wd, th):
     hm, pr, ma, r, a, nu, mra, k, s, f = '', 1, '', 'do', False, '', False, 21, True, True
     od = path.join(wd, 'cry')
+    od_file = path.join(wd, 'cry_result.zip')
     fi = path.join(wd, fi)
     fr = path.join(wd, fr)
     rr = path.join(wd, rr)
@@ -25,5 +26,5 @@ def cryprocess(run_mode, fi, fr, rr, meta, wd, th):
         meta = True
     Crylauncher.LaunchProcessor(od, fi, hm, pr, th, ma, r, a, nu, mra, k, fr, rr, meta, s, f)
 
-    subprocess.call("zip -r cry_result.zip cry", shell=True)
+    subprocess.call("zip -r {0} {1}".format(od_file, od), shell=True)
     return wd

@@ -1,6 +1,6 @@
 FROM lab7arriam/cry_processor:latest
 
-RUN pip install -U "celery[redis]"
+RUN apt update -y && apt install -y zip unzip && pip install -U "celery[redis]"
 
 ADD ./tasks/ /app/
 

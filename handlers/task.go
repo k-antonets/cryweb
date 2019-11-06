@@ -101,6 +101,28 @@ func (h *Handler) AddTask(c echo.Context) error {
 	return h.indexAlert(c, http.StatusOK, "task created", "success")
 }
 
+func (h *Handler) GetResults(c echo.Context) error {
+	id := c.Param("task")
+	userJwt := c.Get("user").(*jwt.Token)
+	claims := userJwt.Claims.(*JwtUserClaims)
+	user_id := claims.Email
+
+	task := &models.Task{}
+
+	if err := h.DbTask().FindId(bson.ObjectIdHex(id)).One(task); err != nil {
+		c.Logger().Error(err)
+		return h.indexAlert(c, http.StatusBadGateway, "failed to get task results", "error")
+	}
+
+	if !task.ResultAvailable(user_id) {
+		return h.indexAlert(c, http.StatusForbidden, "failed to get task results", "error")
+	}
+
+	filename := path.Join(task.WorkDir, "cry_result.zip")
+
+	return c.File(filename)
+}
+
 func saveFile(ctx echo.Context, name, param string, t *models.Task) error {
 	file, err := ctx.FormFile(name)
 	if err != nil {

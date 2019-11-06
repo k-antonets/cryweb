@@ -174,9 +174,7 @@ func main() {
 
 	tasks.POST("/add/", h.AddTask).Name = "tasks.add"
 
-	tasks.GET("/results/:task/", func(context echo.Context) error {
-		return nil
-	}).Name = "tasks.result"
+	tasks.GET("/results/:task/", h.GetResults).Name = "tasks.result"
 
 	e.Logger.Fatal(e.Start(viper.GetString("url")))
 }

@@ -191,6 +191,6 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 func GetResultsResolver(e *echo.Echo) func(task *models.Task) string {
 	return func(task *models.Task) string {
-		return e.Reverse("tasks.result", task.Tool, task.Id)
+		return e.Reverse("tasks.result", task.Tool, task.Id.Hex())
 	}
 }

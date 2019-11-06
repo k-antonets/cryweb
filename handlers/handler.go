@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"net/url"
 	"time"
 )
 
@@ -67,9 +68,10 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 			return false, err.Error()
 		}
 
-		var task *models.Task
+		task := &models.Task{}
 
 		if err := h.DbTask().Find(bson.M{"work_dir": wd}).One(task); err != nil {
+			fmt.Printf("failed to get task for work_dir %s, error: %v\n", wd, err)
 			return false, err.Error()
 		}
 
@@ -77,14 +79,23 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 		task.Status = "finished"
 
 		if err := h.DbTask().UpdateId(task.Id, task); err != nil {
+			fmt.Printf("failed to update task %s entity, error: %v\n", task.Id.Hex(), err)
 			return false, err.Error()
 		}
 
+		relative_url := h.Route("tasks.result", task.Tool, task.Id.Hex())
+		absolute_url, err := url.Parse(h.Url)
+		if err != nil {
+			fmt.Printf("failed to parse server domain %s, error: %v\n", h.Url, err)
+			return false, err.Error()
+		}
+		absolute_url.Path = relative_url
+
 		if err := h.ES.Send([]string{task.UserId},
 			"Task is completed",
-			"complited", echo.Map{
+			"completed", echo.Map{
 				"tool": task.Tool,
-				"url":  h.Route("tasks.result", task.Tool, task.Id.String()),
+				"url":  absolute_url.String(),
 			}); err != nil {
 			return false, err.Error()
 		}

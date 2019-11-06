@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"html/template"
+	"net/url"
 	"strings"
 
 	"github.com/lab7arriam/cryweb/models"
@@ -156,6 +157,18 @@ func main() {
 		Claims:      &handlers.JwtUserClaims{},
 		SigningKey:  []byte(h.Key),
 		TokenLookup: "cookie:token",
+		ErrorHandlerWithContext: func(err error, ctx echo.Context) error {
+			redirect_url := ctx.Path()
+			login_url := e.Reverse("user.login")
+			lu, err2 := url.Parse(login_url)
+			if err2 != nil {
+				return err2
+			}
+			params := url.Values{}
+			params.Add("redirect_url", redirect_url)
+			lu.RawQuery = params.Encode()
+			return ctx.Redirect(http.StatusForbidden, lu.String())
+		},
 	}))
 
 	tasks.GET("/", h.TasksList).Name = "tasks.list"

@@ -88,6 +88,7 @@ func main() {
 			return e.Reverse(name, params...)
 		},
 		Threads: viper.GetInt("threads"),
+		WorkDir: viper.GetString("workdir"),
 	}
 
 	e.Logger.Info("Creating celery worker client")

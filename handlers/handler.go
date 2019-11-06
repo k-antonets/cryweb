@@ -57,12 +57,10 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	}
 
 	cry_processing := func(run_mode, fi, fr, rr, meta, wd string) (bool, string) {
-		fmt.Printf("begin sending new task to pyCelery with directory: %s\n", wd)
 		aresult, err := cli.DelayToQueue("tasks.cryprocess", "cry_py", run_mode, fi, fr, rr, meta, wd, h.Threads)
 		if err != nil {
 			return false, err.Error()
 		}
-		fmt.Printf("finished creating the task to pyCelery with directory %s\n", wd)
 
 		_, err = aresult.Get(time.Hour * time.Duration(timeout))
 		if err != nil {

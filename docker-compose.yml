@@ -4,8 +4,8 @@ services:
   app:
     container_name: cry_goapp
     build: .
-    #volumes:
-    #  - ./app_data:/data
+    volumes:
+      - user_data:/data
     ports:
       - 1323:1323
     secrets:
@@ -22,8 +22,6 @@ services:
     image: mongo:latest
     #volumes:
     # - ./mongo_data:/data
-    #ports:
-    #  - 27017:27017
     networks:
       app_net:
         aliases:
@@ -38,6 +36,8 @@ services:
     build:
       context: ./containers
       dockerfile: celery.dockerfile
+    volumes:
+      - user_data:/data
     environment:
       CELERY_TASK_SERIALIZER: 'json'
       CELERY_ACCEPT_CONTENT: 'json'
@@ -55,3 +55,6 @@ secrets:
 
 networks:
   app_net:
+
+volumes:
+  user_data:

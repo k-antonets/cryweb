@@ -63,15 +63,22 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 			return false, err.Error()
 		}
 
-		_, err = aresult.Get(time.Hour * time.Duration(timeout))
-		if err != nil {
-			return false, err.Error()
-		}
-
 		task := &models.Task{}
 
 		if err := h.DbTask().Find(bson.M{"work_dir": wd}).One(task); err != nil {
 			fmt.Printf("failed to get task for work_dir %s, error: %v\n", wd, err)
+			return false, err.Error()
+		}
+
+		task.Status = "running"
+
+		if err := h.DbTask().UpdateId(task.Id, task); err != nil {
+			fmt.Printf("failed to update task %s entity, error: %v\n", task.Id.Hex(), err)
+			return false, err.Error()
+		}
+
+		_, err = aresult.Get(time.Hour * time.Duration(timeout))
+		if err != nil {
 			return false, err.Error()
 		}
 

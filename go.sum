@@ -85,6 +85,8 @@ github.com/k-antonets/gocelery v0.0.0-20191105234425-eb7163f8bb8b h1:vpQic4JjOXo
 github.com/k-antonets/gocelery v0.0.0-20191105234425-eb7163f8bb8b/go.mod h1:V5P4VQvhY/f9kz/TjZWABX+xIHf5rEEuAd+YtDgQuiI=
 github.com/k-antonets/gocelery v0.0.0-20191106000002-8447892f1e88 h1:T/I2f+aStGlpeELRT+DD2nXDH4Dl8CCLpBMrScvp37w=
 github.com/k-antonets/gocelery v0.0.0-20191106000002-8447892f1e88/go.mod h1:V5P4VQvhY/f9kz/TjZWABX+xIHf5rEEuAd+YtDgQuiI=
+github.com/k-antonets/gocelery v0.0.0-20191106001857-c5dcaf0ea47b h1:Z1a7y6CvUqyhosnENyER3HqNJUxN31jUwRKBuUX21qk=
+github.com/k-antonets/gocelery v0.0.0-20191106001857-c5dcaf0ea47b/go.mod h1:V5P4VQvhY/f9kz/TjZWABX+xIHf5rEEuAd+YtDgQuiI=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=

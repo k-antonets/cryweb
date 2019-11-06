@@ -47,6 +47,7 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 		},
 	}
 
+	fmt.Printf("number of workers is equal to %d\n", w)
 	cli, err := gocelery.NewCeleryClient(
 		gocelery.NewRedisBroker(redisPool, "cry_go"),
 		&gocelery.RedisCeleryBackend{Pool: redisPool},

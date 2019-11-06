@@ -37,8 +37,15 @@ func NewTask(user, tool, tmpDir string) (*Task, error) {
 	}, nil
 }
 
+func (t *Task) ResultExists() bool {
+	if t.Status != "finished" || t.Removed {
+		return false
+	}
+	return true
+}
+
 func (t *Task) ResultAvailable(user string) bool {
-	if user != t.UserId || t.Status != "finished" || t.Removed {
+	if user != t.UserId || !t.ResultExists() {
 		return false
 	}
 	return true

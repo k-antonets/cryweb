@@ -21,7 +21,9 @@
                     <td>{{ $t.Name }}</td>
                     <td class="text-{{if $t.Removed}}danger{{else}}dark{{end}}">{{ capitalize $t.Status }}</td>
                     <td>{{ $t.Created }}</td>
-                    <td>{{ get_results_url $t }}</td>
+                    <td>{{ if get_results_url $t }}<a href="{{ get_results_url $t }}">Download</a>
+                        {{else}}Not available{{end}}
+                    </td>
                 </tr>
             {{end}}
             </tbody>

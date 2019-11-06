@@ -2,6 +2,10 @@
 {{define "content"}}
     <h1>Create new task</h1>
 <form action="{{ .action_url}}" method="post" class="accordion" id="add-task-form" enctype="multipart/form-data">
+    <div class="mb-3 form-group">
+        <label for="task-name">Task name</label>
+        <input type="text" class="form-control" id="task-name" name="task_name" placeholder="Some task">
+    </div>
     <div class="mb-3">
         <h2>Select running mode</h2>
         <div class="form-row">

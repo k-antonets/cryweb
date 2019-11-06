@@ -66,6 +66,7 @@ func (h *Handler) AddTask(c echo.Context) error {
 	if err != nil {
 		return h.indexAlert(c, http.StatusBadGateway, "failed to create task", "danger")
 	}
+	task.Name = c.FormValue("task_name")
 
 	task.AddParam("run_mode", mode)
 

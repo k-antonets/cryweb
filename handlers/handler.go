@@ -71,6 +71,7 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 		aresult := cli.GetAsyncResult(task.TaskId)
 		err := errors.New("")
 
+		fmt.Printf("beginning task %s with celery id <%s>\n", task.Id.Hex(), task.TaskId)
 		if task.TaskId == "" {
 
 			aresult, err = cli.DelayToQueue("tasks.cryprocess", "cry_py", run_mode, fi, fr, rr, meta, wd, h.Threads)
@@ -126,11 +127,13 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 
 	//Run all unfinished tasks after restart
 	unfinished_tasks := []*models.Task{}
-	if err := h.DbTask().Find(bson.M{"removed": false, "status": bson.M{"$in": []string{"created", "running"}}}).All(unfinished_tasks); err != nil {
+	if err := h.DbTask().Find(bson.M{"removed": false, "status": bson.M{"$in": []string{"created", "running"}}}).All(&unfinished_tasks); err != nil {
 		fmt.Printf("failed to get unfinished tasks, error: %v\n", err)
 		return err
 	}
+	fmt.Printf("left unfinished tasks: %d\n", len(unfinished_tasks))
 	for _, task := range unfinished_tasks {
+		fmt.Printf("restarting task %s with celery id <%s>\n", task.Id.Hex(), task.TaskId)
 		if _, err := h.Celery.Delay("go_cry", task.GetParam("run_mode"), task.GetParam("fi"),
 			task.GetParam("fo"), task.GetParam("re"), task.GetParam("meta"),
 			task.WorkDir); err != nil {

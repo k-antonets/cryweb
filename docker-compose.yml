@@ -28,9 +28,12 @@ services:
             - cry_mongo
   redis:
     container_name: cry_redis
+    command: redis-server --save 60 100
     image: redis:latest
     networks:
       - app_net
+    volumes:
+      - redis_data:/data
   celery:
     container_name: cry_celery
     build:
@@ -58,3 +61,4 @@ networks:
 
 volumes:
   user_data:
+  redis_data:

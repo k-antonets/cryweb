@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/gomodule/redigo/redis"
 	"github.com/k-antonets/gocelery"
 	"github.com/lab7arriam/cryweb/models"
@@ -9,8 +13,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"net/url"
-	"time"
 )
 
 type Handler struct {
@@ -58,10 +60,6 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	}
 
 	cry_processing := func(run_mode, fi, fr, rr, meta, wd string) (bool, string) {
-		aresult, err := cli.DelayToQueue("tasks.cryprocess", "cry_py", run_mode, fi, fr, rr, meta, wd, h.Threads)
-		if err != nil {
-			return false, err.Error()
-		}
 
 		task := &models.Task{}
 
@@ -70,11 +68,22 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 			return false, err.Error()
 		}
 
-		task.Status = "running"
+		aresult := cli.GetAsyncResult(task.TaskId)
+		err := errors.New("")
 
-		if err := h.DbTask().UpdateId(task.Id, task); err != nil {
-			fmt.Printf("failed to update task %s entity, error: %v\n", task.Id.Hex(), err)
-			return false, err.Error()
+		if task.TaskId == "" {
+
+			aresult, err = cli.DelayToQueue("tasks.cryprocess", "cry_py", run_mode, fi, fr, rr, meta, wd, h.Threads)
+			if err != nil {
+				return false, err.Error()
+			}
+
+			task.Run(aresult.TaskID)
+
+			if err := h.DbTask().UpdateId(task.Id, task); err != nil {
+				fmt.Printf("failed to update task %s entity, error: %v\n", task.Id.Hex(), err)
+				return false, err.Error()
+			}
 		}
 
 		_, err = aresult.Get(time.Hour * time.Duration(timeout))
@@ -82,8 +91,7 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 			return false, err.Error()
 		}
 
-		task.Finished = time.Now()
-		task.Status = "finished"
+		task.Finish()
 
 		if err := h.DbTask().UpdateId(task.Id, task); err != nil {
 			fmt.Printf("failed to update task %s entity, error: %v\n", task.Id.Hex(), err)
@@ -115,6 +123,20 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 
 	fmt.Println("starting workers")
 	cli.StartWorker()
+
+	//Run all unfinished tasks after restart
+	unfinished_tasks := []*models.Task{}
+	if err := h.DbTask().Find(bson.M{"removed": false, "status": bson.M{"$in": []string{"created", "running"}}}).All(unfinished_tasks); err != nil {
+		fmt.Printf("failed to get unfinished tasks, error: %v\n", err)
+		return err
+	}
+	for _, task := range unfinished_tasks {
+		if _, err := h.Celery.Delay("go_cry", task.GetParam("run_mode"), task.GetParam("fi"),
+			task.GetParam("fo"), task.GetParam("re"), task.GetParam("meta"),
+			task.WorkDir); err != nil {
+			return err
+		}
+	}
 
 	h.Celery = cli
 

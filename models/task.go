@@ -18,6 +18,7 @@ type Task struct {
 	Removed  bool              `json:"removed" bson:"removed"`
 	UserId   string            `json:"user_id" bson:"user_id"`
 	Tool     string            `json:"tool" bson:"tool"`
+	TaskId   string            `json:"task_id" bson:"task_id"`
 }
 
 func NewTask(user, tool, tmpDir string) (*Task, error) {
@@ -42,6 +43,20 @@ func (t *Task) ResultExists() bool {
 		return false
 	}
 	return true
+}
+
+func (t *Task) NotFinished() bool {
+	return t.Status != "finished" && !t.Removed
+}
+
+func (t *Task) Finish() {
+	t.Finished = time.Now()
+	t.Status = "finished"
+}
+
+func (t *Task) Run(task_id string) {
+	t.Status = "running"
+	t.TaskId = task_id
 }
 
 func (t *Task) IsRunning() bool {

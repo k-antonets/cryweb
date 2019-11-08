@@ -134,7 +134,7 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 	fmt.Printf("left unfinished tasks: %d\n", len(unfinished_tasks))
 	for _, task := range unfinished_tasks {
 		fmt.Printf("restarting task %s with celery id <%s>\n", task.Id.Hex(), task.TaskId)
-		if _, err := h.Celery.Delay("go_cry", task.GetParam("run_mode"), task.GetParam("fi"),
+		if _, err := cli.Delay("go_cry", task.GetParam("run_mode"), task.GetParam("fi"),
 			task.GetParam("fo"), task.GetParam("re"), task.GetParam("meta"),
 			task.WorkDir); err != nil {
 			return err

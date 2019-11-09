@@ -131,23 +131,7 @@ func main() {
 
 	tools := e.Group("/tools/:tool")
 
-	tools.GET("/", func(c echo.Context) error {
-		if c.Param("tool") != "cry_processor" {
-			return c.Render(http.StatusNotFound, "pages/index", echo.Map{
-				"tool_name":    c.Param("tool"),
-				"login_url":    e.Reverse("user.login"),
-				"register_url": e.Reverse("user.register"),
-				"notification": "Tool is not found",
-				"alert_type":   "error",
-			})
-		}
-		tool_name := "Cry Processor" // TODO: should be replaced by adding tools to db
-		return c.Render(http.StatusOK, "pages/index", echo.Map{
-			"tool_name":    tool_name,
-			"login_url":    e.Reverse("user.login"),
-			"register_url": e.Reverse("user.register"),
-		})
-	}).Name = "tools.main"
+	tools.GET("/", h.ToolMain).Name = "tools.main"
 
 	tasks := tools.Group("/tasks")
 

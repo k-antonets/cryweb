@@ -269,9 +269,12 @@ type JwtUserClaims struct {
 }
 
 func (h *Handler) indexAlert(ctx echo.Context, code int, notification, alert string) error {
+	u, l := h.checkLogged(ctx)
 	return ctx.Render(code, "pages/index", echo.Map{
 		"notification": notification,
 		"alert_type":   alert,
+		"logged":       l,
+		"user":         u,
 		"login_url":    h.Route("user.login"),
 		"register_url": h.Route("user.register"),
 	})

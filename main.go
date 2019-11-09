@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/dgrijalva/jwt-go"
 	"html/template"
 	"net/url"
 	"strings"
@@ -118,19 +119,9 @@ func main() {
 
 	user := e.Group("/user")
 
-	user.GET("/login/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "pages/login", echo.Map{
-			"redirect_url": c.QueryParam("redirect_url"),
-			"register_url": e.Reverse("user.register"),
-			"login_url":    e.Reverse("user.login"),
-		})
-	})
-	user.GET("/register/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "pages/register", echo.Map{
-			"action_url": e.Reverse("user.register"),
-			"cancel_url": e.Reverse("main.page"),
-		})
-	})
+	user.GET("/login/", h.LoginPage)
+
+	user.GET("/register/", h.RegisterPage)
 
 	user.GET("/activate/", h.Activate).Name = "user.activate"
 

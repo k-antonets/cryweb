@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 
+	mw "github.com/lab7arriam/cryweb/middleware"
 	"github.com/lab7arriam/cryweb/models"
 	"github.com/lab7arriam/cryweb/providers"
 	"github.com/labstack/gommon/log"
@@ -91,6 +92,17 @@ func main() {
 		Threads: viper.GetInt("threads"),
 		WorkDir: viper.GetString("workdir"),
 	}
+
+	e.Use(mw.JWTWithConfig(mw.JWTConfig{
+		Skipper: func(c echo.Context) bool {
+			return false
+		},
+		Claims:         &handlers.JwtUserClaims{},
+		SigningKey:     []byte(h.Key),
+		TokenLookup:    "cookie:token",
+		ContextKey:     "auth",
+		ContextKeyFlag: "logged",
+	}))
 
 	e.Logger.Info("Creating celery worker client")
 

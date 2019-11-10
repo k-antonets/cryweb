@@ -227,15 +227,16 @@ func (h *Handler) LoginPage(ctx echo.Context) error {
 		u := models.NewUser()
 
 		if err := h.DbUser().FindId(user_id).One(u); err != nil {
-			h.indexAlert(ctx, http.StatusOK, "Failed to get info about this user", "danger")
+			return h.indexAlert(ctx, http.StatusOK, "Failed to get info about this user", "danger")
 		}
 		return ctx.Render(http.StatusForbidden, "pages/index", echo.Map{
-			"tool_name":    "cry_processor", // TODO: Rewrite to normal tool name
-			"logged":       true,
-			"user":         u,
-			"notification": "your are already logged in",
-			"login_url":    h.Route("user.login"),
-			"register_url": h.Route("user.register"),
+			"tool_name":     "cry_processor", // TODO: Rewrite to normal tool name
+			"logged":        true,
+			"user":          u,
+			"all_tasks_url": h.Route("tasks.list", "cry_processor"),
+			"notification":  "your are already logged in",
+			"login_url":     h.Route("user.login"),
+			"register_url":  h.Route("user.register"),
 		})
 	}
 	return ctx.Render(http.StatusOK, "pages/login", echo.Map{
@@ -249,12 +250,13 @@ func (h *Handler) RegisterPage(ctx echo.Context) error {
 	u, l := h.checkLogged(ctx)
 	if l {
 		return ctx.Render(http.StatusForbidden, "pages/index", echo.Map{
-			"tool_name":    "cry_processor", // TODO: ewrite to normal tool name
-			"logged":       true,
-			"user":         u,
-			"notification": "your are already logged in",
-			"login_url":    h.Route("user.login"),
-			"register_url": h.Route("user.register"),
+			"tool_name":     "cry_processor", // TODO: ewrite to normal tool name
+			"logged":        true,
+			"user":          u,
+			"all_tasks_url": h.Route("tasks.list", "cry_processor"),
+			"notification":  "your are already logged in",
+			"login_url":     h.Route("user.login"),
+			"register_url":  h.Route("user.register"),
 		})
 	}
 	return ctx.Render(http.StatusOK, "pages/register", echo.Map{
@@ -271,12 +273,13 @@ type JwtUserClaims struct {
 func (h *Handler) indexAlert(ctx echo.Context, code int, notification, alert string) error {
 	u, l := h.checkLogged(ctx)
 	return ctx.Render(code, "pages/index", echo.Map{
-		"notification": notification,
-		"alert_type":   alert,
-		"logged":       l,
-		"user":         u,
-		"login_url":    h.Route("user.login"),
-		"register_url": h.Route("user.register"),
+		"notification":  notification,
+		"alert_type":    alert,
+		"logged":        l,
+		"user":          u,
+		"all_tasks_url": h.Route("tasks.list", "cry_processor"),
+		"login_url":     h.Route("user.login"),
+		"register_url":  h.Route("user.register"),
 	})
 }
 

@@ -20,10 +20,11 @@ func (h *Handler) ToolMain(c echo.Context) error {
 	}
 	tool_name := "Cry Processor" // TODO: should be replaced by adding tools to db
 	return c.Render(http.StatusOK, "pages/index", echo.Map{
-		"tool_name":    tool_name,
-		"login_url":    h.Route("user.login"),
-		"register_url": h.Route("user.register"),
-		"logged":       l,
-		"user":         u,
+		"tool_name":     tool_name,
+		"login_url":     h.Route("user.login"),
+		"register_url":  h.Route("user.register"),
+		"all_tasks_url": h.Route("tasks.list", "cry_processor"),
+		"logged":        l,
+		"user":          u,
 	})
 }

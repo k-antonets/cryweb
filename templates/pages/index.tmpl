@@ -14,7 +14,7 @@
             Web site for crying and eating toxins))
         </main>
         <div class="col-sm-4">
-            {{template  "login" . }}
+            {{if .logged }}{{template  "login" . }}{{ else }}{{template "logged" .}}{{end}}
         </div>
     </div>
 {{end}}

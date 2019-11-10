@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/dgrijalva/jwt-go"
+	_ "github.com/dgrijalva/jwt-go"
 	"html/template"
 	"net/url"
 	"strings"
@@ -64,7 +64,7 @@ func main() {
 		Root:      "templates",
 		Extension: ".tmpl",
 		Master:    "layouts/base",
-		Partials:  []string{"assets/js", "assets/style", "assets/login"},
+		Partials:  []string{"assets/js", "assets/style", "assets/login", "assets/logged"},
 		Funcs: template.FuncMap{
 			"get_results_url": GetResultsResolver(e),
 			"capitalize":      strings.ToTitle,

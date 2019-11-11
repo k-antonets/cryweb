@@ -41,6 +41,10 @@ func main() {
 
 	e.Pre(middleware.AddTrailingSlash())
 
+	if viper.GetBool("production") {
+		e.Pre(middleware.HTTPSRedirect())
+	}
+
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Skipper: middleware.DefaultSkipper,
 		Root:    "/static",

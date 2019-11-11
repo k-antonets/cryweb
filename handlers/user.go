@@ -63,7 +63,7 @@ func (h *Handler) Login(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, c.FormValue("redirect_url"))
 	}
 
-	return h.indexAlert(c, http.StatusOK, "You are logged in!", "success")
+	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
 func (h *Handler) Register(c echo.Context) error {

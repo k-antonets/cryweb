@@ -159,7 +159,7 @@ func main() {
 		SigningKey:  []byte(h.Key),
 		TokenLookup: "cookie:token",
 		ErrorHandlerWithContext: func(err error, ctx echo.Context) error {
-			redirect_url := ctx.Path()
+			redirect_url := ctx.Request().URL.String()
 			login_url := e.Reverse("user.login")
 			lu, err2 := url.Parse(login_url)
 			if err2 != nil {
@@ -168,7 +168,7 @@ func main() {
 			params := url.Values{}
 			params.Add("redirect_url", redirect_url)
 			lu.RawQuery = params.Encode()
-			return ctx.Redirect(http.StatusForbidden, lu.String())
+			return ctx.Redirect(http.StatusMovedPermanently, lu.String())
 		},
 	}))
 

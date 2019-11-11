@@ -14,7 +14,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/jordan-wright/email v0.0.0-20190819015918-041e0cec78b0
-	github.com/k-antonets/gocelery v0.0.0-20191108100816-09fd45cd6c53
+	github.com/k-antonets/gocelery v0.0.0-20191111091215-2ae6b65cb5f8
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.1.11
 	github.com/labstack/gommon v0.3.0

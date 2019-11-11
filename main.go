@@ -96,7 +96,8 @@ func main() {
 
 	if err := h.InitCelery(viper.GetString("redis_url"),
 		viper.GetInt("workers_number"),
-		viper.GetInt("timeout")); err != nil {
+		viper.GetInt("timeout"),
+		viper.GetString("support_email")); err != nil {
 		e.Logger.Error(err)
 	}
 

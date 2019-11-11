@@ -1,0 +1,13 @@
+{{ define "content" }}
+<p>
+    {{if .timeout }}
+        Unfortunately, execution of your task {{.label}} at {{.tool}} took to much time and was cancelled.
+        Please, try again to resubmit the task with less data or contact
+        the technical support at <a href="{{.support}}">{{.support}}</a>.
+    {{else}}
+        Unfortunately, your task {{.label}} at {{.tool}} has been failed due to technical reason.
+        Please, try again to resubmit the task or contact
+        the technical support at <a href="{{.support}}">{{.support}}</a>.
+    {{end}}
+</p>
+{{ end }}

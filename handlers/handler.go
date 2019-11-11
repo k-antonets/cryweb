@@ -39,7 +39,7 @@ func (h *Handler) DbTask() *mgo.Collection {
 	return h.D().C("tasks")
 }
 
-func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
+func (h *Handler) InitCelery(redis_url string, w, timeout int, support string) error {
 	redisPool := &redis.Pool{
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.DialURL(redis_url)
@@ -87,16 +87,36 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 			}
 		}
 
-		_, err = aresult.Get(time.Hour * time.Duration(timeout))
+		_, err = aresult.Get(time.Minute * time.Duration(timeout))
 		if err != nil {
-			return false, err.Error()
+			fmt.Printf("failed to get results for task %s, error: %s\n", task.Id.Hex(), err.Error())
+			switch err.(type) {
+			case *gocelery.ErrTaskFailure:
+				task.Fail()
+			default:
+				task.TimeoutFail()
+			}
+		} else {
+			task.Finish()
 		}
-
-		task.Finish()
 
 		if err := h.DbTask().UpdateId(task.Id, task); err != nil {
 			fmt.Printf("failed to update task %s entity, error: %v\n", task.Id.Hex(), err)
 			return false, err.Error()
+		}
+
+		if task.Failed() {
+			if err := h.ES.Send([]string{task.UserId},
+				"Task is failed",
+				"failed", echo.Map{
+					"timeout": task.Timeouted,
+					"label":   task.Name,
+					"tool":    task.Tool,
+					"support": support,
+				}); err != nil {
+				return false, err.Error()
+			}
+			return false, fmt.Sprintf("task %s has been failed", task.Id.Hex())
 		}
 
 		relative_url := h.Route("tasks.result", task.Tool, task.Id.Hex())
@@ -110,8 +130,9 @@ func (h *Handler) InitCelery(redis_url string, w, timeout int) error {
 		if err := h.ES.Send([]string{task.UserId},
 			"Task is completed",
 			"completed", echo.Map{
-				"tool": task.Tool,
-				"url":  absolute_url.String(),
+				"label": task.Name,
+				"tool":  task.Tool,
+				"url":   absolute_url.String(),
 			}); err != nil {
 			return false, err.Error()
 		}

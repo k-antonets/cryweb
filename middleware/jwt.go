@@ -45,6 +45,10 @@ type (
 		// Optional. Default value "user".
 		ContextKey string
 
+		// Flag with bool value to show if the user is authorized
+		// Optional. Default value "{ContextKey}_flag"
+		ContextKeyFlag string
+
 		// Claims are extendable claims data defining token content.
 		// Optional. Default value jwt.MapClaims
 		Claims jwt.Claims
@@ -91,12 +95,13 @@ var (
 var (
 	// DefaultJWTConfig is the default JWT auth middleware config.
 	DefaultJWTConfig = JWTConfig{
-		Skipper:       em.DefaultSkipper,
-		SigningMethod: AlgorithmHS256,
-		ContextKey:    "user",
-		TokenLookup:   "header:" + echo.HeaderAuthorization,
-		AuthScheme:    "Bearer",
-		Claims:        jwt.MapClaims{},
+		Skipper:        em.DefaultSkipper,
+		SigningMethod:  AlgorithmHS256,
+		ContextKey:     "user",
+		ContextKeyFlag: "user_flag",
+		TokenLookup:    "header:" + echo.HeaderAuthorization,
+		AuthScheme:     "Bearer",
+		Claims:         jwt.MapClaims{},
 	}
 )
 
@@ -129,6 +134,9 @@ func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 	}
 	if config.ContextKey == "" {
 		config.ContextKey = DefaultJWTConfig.ContextKey
+	}
+	if config.ContextKeyFlag == "" {
+		config.ContextKeyFlag = config.ContextKey + "_flag"
 	}
 	if config.Claims == nil {
 		config.Claims = DefaultJWTConfig.Claims
@@ -180,6 +188,7 @@ func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 
 			auth, err := extractor(c)
 			token := new(jwt.Token)
+			c.Set(config.ContextKeyFlag, false)
 			if err != nil {
 				c.Set(config.ContextKey, token)
 				return next(c)
@@ -196,6 +205,7 @@ func JWTWithConfig(config JWTConfig) echo.MiddlewareFunc {
 			if err == nil && token.Valid {
 				// Store user information from token into context.
 				c.Set(config.ContextKey, token)
+				c.Set(config.ContextKeyFlag, true)
 				if config.SuccessHandler != nil {
 					config.SuccessHandler(c)
 				}

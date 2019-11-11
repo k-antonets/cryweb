@@ -217,16 +217,85 @@ func (h *Handler) Activate(c echo.Context) error {
 	return h.indexAlert(c, http.StatusOK, "Your email is confirmed. Your account is waiting for confirmation by admin. Your will be notified by email.", "success")
 }
 
+func (h *Handler) LoginPage(ctx echo.Context) error {
+	lg := ctx.Get("logged").(bool)
+	if lg {
+		userJwt := ctx.Get("user").(*jwt.Token)
+		claims := userJwt.Claims.(*JwtUserClaims)
+		user_id := claims.Email
+
+		u := models.NewUser()
+
+		if err := h.DbUser().FindId(user_id).One(u); err != nil {
+			return h.indexAlert(ctx, http.StatusOK, "Failed to get info about this user", "danger")
+		}
+		return ctx.Render(http.StatusForbidden, "pages/index", echo.Map{
+			"tool_name":     "cry_processor", // TODO: Rewrite to normal tool name
+			"logged":        true,
+			"user":          u,
+			"all_tasks_url": h.Route("tasks.list", "cry_processor"),
+			"notification":  "your are already logged in",
+			"login_url":     h.Route("user.login"),
+			"register_url":  h.Route("user.register"),
+		})
+	}
+	return ctx.Render(http.StatusOK, "pages/login", echo.Map{
+		"redirect_url": ctx.QueryParam("redirect_url"),
+		"register_url": h.Route("user.register"),
+		"login_url":    h.Route("user.login"),
+	})
+}
+
+func (h *Handler) RegisterPage(ctx echo.Context) error {
+	u, l := h.checkLogged(ctx)
+	if l {
+		return ctx.Render(http.StatusForbidden, "pages/index", echo.Map{
+			"tool_name":     "cry_processor", // TODO: ewrite to normal tool name
+			"logged":        true,
+			"user":          u,
+			"all_tasks_url": h.Route("tasks.list", "cry_processor"),
+			"notification":  "your are already logged in",
+			"login_url":     h.Route("user.login"),
+			"register_url":  h.Route("user.register"),
+		})
+	}
+	return ctx.Render(http.StatusOK, "pages/register", echo.Map{
+		"action_url": h.Route("user.register"),
+		"cancel_url": h.Route("main.page"),
+	})
+}
+
 type JwtUserClaims struct {
 	Email string `json:"email"`
 	jwt.StandardClaims
 }
 
 func (h *Handler) indexAlert(ctx echo.Context, code int, notification, alert string) error {
+	u, l := h.checkLogged(ctx)
 	return ctx.Render(code, "pages/index", echo.Map{
-		"notification": notification,
-		"alert_type":   alert,
-		"login_url":    h.Route("user.login"),
-		"register_url": h.Route("user.register"),
+		"notification":  notification,
+		"alert_type":    alert,
+		"logged":        l,
+		"user":          u,
+		"all_tasks_url": h.Route("tasks.list", "cry_processor"),
+		"login_url":     h.Route("user.login"),
+		"register_url":  h.Route("user.register"),
 	})
+}
+
+func (h *Handler) checkLogged(ctx echo.Context) (*models.User, bool) {
+	lg := ctx.Get("logged").(bool)
+	if lg {
+		userJwt := ctx.Get("user").(*jwt.Token)
+		claims := userJwt.Claims.(*JwtUserClaims)
+		user_id := claims.Email
+
+		u := models.NewUser()
+
+		if err := h.DbUser().FindId(user_id).One(u); err != nil {
+			return nil, false
+		}
+		return u, lg
+	}
+	return nil, lg
 }

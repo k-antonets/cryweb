@@ -1,0 +1,12 @@
+{{ define "logged" }}
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Welcome, <br/>{{ .user.FirstName }} {{ .user.LastName }}</h3>
+            <div class="row">
+                <div class="col-sm-6">
+                    <a href="{{ .all_tasks_url }}" class="btn btn-link">Go to the list of your tasks</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{{ end }}

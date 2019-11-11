@@ -2,10 +2,12 @@ package main
 
 import (
 	"flag"
+	_ "github.com/dgrijalva/jwt-go"
 	"html/template"
 	"net/url"
 	"strings"
 
+	mw "github.com/lab7arriam/cryweb/middleware"
 	"github.com/lab7arriam/cryweb/models"
 	"github.com/lab7arriam/cryweb/providers"
 	"github.com/labstack/gommon/log"
@@ -62,7 +64,7 @@ func main() {
 		Root:      "templates",
 		Extension: ".tmpl",
 		Master:    "layouts/base",
-		Partials:  []string{"assets/js", "assets/style", "assets/login"},
+		Partials:  []string{"assets/js", "assets/style", "assets/login", "assets/logged"},
 		Funcs: template.FuncMap{
 			"get_results_url": GetResultsResolver(e),
 			"capitalize":      strings.ToTitle,
@@ -92,6 +94,17 @@ func main() {
 		WorkDir: viper.GetString("workdir"),
 	}
 
+	e.Use(mw.JWTWithConfig(mw.JWTConfig{
+		Skipper: func(c echo.Context) bool {
+			return false
+		},
+		Claims:         &handlers.JwtUserClaims{},
+		SigningKey:     []byte(h.Key),
+		TokenLookup:    "cookie:token",
+		ContextKey:     "auth",
+		ContextKeyFlag: "logged",
+	}))
+
 	e.Logger.Info("Creating celery worker client")
 
 	if err := h.InitCelery(viper.GetString("redis_url"),
@@ -107,19 +120,9 @@ func main() {
 
 	user := e.Group("/user")
 
-	user.GET("/login/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "pages/login", echo.Map{
-			"redirect_url": c.QueryParam("redirect_url"),
-			"register_url": e.Reverse("user.register"),
-			"login_url":    e.Reverse("user.login"),
-		})
-	})
-	user.GET("/register/", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "pages/register", echo.Map{
-			"action_url": e.Reverse("user.register"),
-			"cancel_url": e.Reverse("main.page"),
-		})
-	})
+	user.GET("/login/", h.LoginPage)
+
+	user.GET("/register/", h.RegisterPage)
 
 	user.GET("/activate/", h.Activate).Name = "user.activate"
 
@@ -129,23 +132,7 @@ func main() {
 
 	tools := e.Group("/tools/:tool")
 
-	tools.GET("/", func(c echo.Context) error {
-		if c.Param("tool") != "cry_processor" {
-			return c.Render(http.StatusNotFound, "pages/index", echo.Map{
-				"tool_name":    c.Param("tool"),
-				"login_url":    e.Reverse("user.login"),
-				"register_url": e.Reverse("user.register"),
-				"notification": "Tool is not found",
-				"alert_type":   "error",
-			})
-		}
-		tool_name := "Cry Processor" // TODO: should be replaced by adding tools to db
-		return c.Render(http.StatusOK, "pages/index", echo.Map{
-			"tool_name":    tool_name,
-			"login_url":    e.Reverse("user.login"),
-			"register_url": e.Reverse("user.register"),
-		})
-	}).Name = "tools.main"
+	tools.GET("/", h.ToolMain).Name = "tools.main"
 
 	tasks := tools.Group("/tasks")
 

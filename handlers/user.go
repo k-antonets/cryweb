@@ -220,7 +220,7 @@ func (h *Handler) Activate(c echo.Context) error {
 func (h *Handler) LoginPage(ctx echo.Context) error {
 	lg := ctx.Get("logged").(bool)
 	if lg {
-		userJwt := ctx.Get("user").(*jwt.Token)
+		userJwt := ctx.Get("auth").(*jwt.Token)
 		claims := userJwt.Claims.(*JwtUserClaims)
 		user_id := claims.Email
 
@@ -285,11 +285,12 @@ func (h *Handler) indexAlert(ctx echo.Context, code int, notification, alert str
 
 func (h *Handler) checkLogged(ctx echo.Context) (*models.User, bool) {
 	lg := ctx.Get("logged").(bool)
+	ctx.Logger().Infof("the value of logged key is %v\n", lg)
 	if lg {
-		userJwt := ctx.Get("user").(*jwt.Token)
+		userJwt := ctx.Get("auth").(*jwt.Token)
 		claims := userJwt.Claims.(*JwtUserClaims)
 		user_id := claims.Email
-
+		ctx.Logger().Infof("the value of auth key is %s\n", user_id)
 		u := models.NewUser()
 
 		if err := h.DbUser().FindId(user_id).One(u); err != nil {

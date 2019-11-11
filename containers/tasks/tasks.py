@@ -7,6 +7,7 @@ from cry_processor import Crylauncher
 from os import path
 import os
 import subprocess
+import shutil
 
 app = Celery("tasks", broker="redis://redis:6379/", backend="redis://redis:6379/")
 
@@ -32,9 +33,9 @@ def cryprocess(run_mode, fi, fr, rr, meta, wd, th):
     os.mkdir(final_result_dir)
     os.replace(glob.glob(path.join(od, 'raw_full_*'))[0], path.join(final_result_dir, 'full_toxins.fasta'))
     os.replace(glob.glob(path.join(od, 'proteins_domain_mapping_full_*'))[0], path.join(final_result_dir, 'full_toxins.bed'))
-    os.replace(path.join(od, 'logs', 'cry_processor.txt'), path.join(final_result_dir, 'summary_log.txt'))
+    os.replace(path.join(od, 'logs', 'cry_processor.log'), path.join(final_result_dir, 'summary_log.txt'))
     os.replace(glob.glob(path.join(od, 'logs', 'diamond_matches_*'))[0], path.join(final_result_dir, 'diamond_classification.txt'))
-    subprocess.call("pushd {2}; zip -r {0} {1}; popd".format(od_file, final_result_dir, wd), shell=True)
-    os.rmdir(od)
-    os.rmdir(final_result_dir)
+    subprocess.call("cwd=$PWD; cd {2}; zip -r {0} {1}; cd $cwd".format('cry_result.zip', 'cry_processor', wd), shell=True)
+    shutil.rmtree(od)
+    shutil.rmtree(final_result_dir)
     return wd

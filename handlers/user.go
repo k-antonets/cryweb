@@ -273,6 +273,7 @@ type JwtUserClaims struct {
 func (h *Handler) indexAlert(ctx echo.Context, code int, notification, alert string) error {
 	u, l := h.checkLogged(ctx)
 	return ctx.Render(code, "pages/index", echo.Map{
+		"tool_name":     "Cry Processor",
 		"notification":  notification,
 		"alert_type":    alert,
 		"logged":        l,

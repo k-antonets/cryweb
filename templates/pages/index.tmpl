@@ -17,8 +17,9 @@
             </div>
             <p>CryProcessor is a python-written tool for searching and extracting Cry toxins from illumina sequence data or from the protein fasta files. It includes several parts: an hmm-based scanning for potential Cry toxins, obtaining information about the domains, extracting Cry toxins with 3 domains only and comparing found toxins with Bt nomenclature.</p>
 
-            <p>The mode for performing the toxins search directly from the illumina reads implies building an assembly graph (using SPAdes) and the subsequent mining toxins directly from the obtained assebmly graph.</p>
-            Web site for crying and eating toxins))
+            <p>The mode for performing the toxins search directly from the Illumina reads implies building an assembly graph (using SPAdes) and the subsequent mining toxins directly from the obtained assebmly graph.</p>
+            <p>The full command line tool and its description are available at the git-hub repository (<a href="https://github.com/lab7arriam/cry_processor" target="_blank">https://github.com/lab7arriam/cry_processor</a>). Here, several features of the pipeline are presented. Thus, you can upload either the protein sequence files in FASTA format or the Illumina sequence reads in fastq format. Note that the volume of the uploaded files is limited to 400 Mb.</p>
+            <p>To access the online version of CryProcessor you have to register on the current site and activate e-mail. Then your account will be activated by the administrator (usually within one day).  Once the e-mail is verified, you will be able to send your queries. When uploading please specify the type of running mode (protein sequence in fasta format, Illumina reads in fastq format for single organism or metagenome Illumina reads). The status of your submission will be available at the task list. When the task is completed, you will obtain a link to results, containing summary text file, detected 3-d Cry toxins in fasta format, coordinates for each domain of obtained toxins in bed format and diamond output in tsv format, reporting the similarity of revealed toxins with the Bt nomenclature database.</p>
         </main>
         <div class="col-sm-4">
             {{if .logged }}{{template  "logged" . }}{{ else }}{{template "login" .}}{{end}}

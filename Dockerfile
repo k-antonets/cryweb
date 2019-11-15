@@ -8,6 +8,7 @@ WORKDIR /src/
 
 RUN go build -o /app/server . && \
     cp -R templates /app && \
+    cp -R static /app && \
     cd / && rm -rf /src
 
 WORKDIR /app/

@@ -39,7 +39,14 @@ func main() {
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 
-	e.Pre(middleware.AddTrailingSlash())
+	e.Pre(middleware.AddTrailingSlashWithConfig(middleware.TrailingSlashConfig{
+		Skipper: func(c echo.Context) bool {
+			if strings.HasPrefix(c.Request().URL.Path, "/static") || strings.HasPrefix(c.Request().URL.Path, "static") {
+				return true
+			}
+			return false
+		},
+	}))
 
 	if viper.GetBool("production") {
 		e.Pre(middleware.HTTPSRedirect())
@@ -121,6 +128,12 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.Redirect(http.StatusMovedPermanently, e.Reverse("tools.main", "cry_processor"))
 	}).Name = "main.page"
+
+	static := e.Group("/static")
+	static.Use(middleware.Static("/static"))
+	static.GET("/logo.png", func(context echo.Context) error {
+		return context.File("static/logo.png")
+	})
 
 	user := e.Group("/user")
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	_ "github.com/dgrijalva/jwt-go"
 	"html/template"
 	"net/url"
@@ -56,8 +57,8 @@ func main() {
 		Skipper: middleware.DefaultSkipper,
 		Root:    "/static",
 		Index:   "index.html",
-		HTML5:   true,
-		Browse:  false,
+		HTML5:   false,
+		Browse:  true,
 	}))
 	e.Use(middleware.Logger())
 	e.Logger.SetLevel(log.DEBUG)
@@ -133,6 +134,13 @@ func main() {
 	static.Use(middleware.Static("/static"))
 	static.GET("/logo.png", func(context echo.Context) error {
 		return context.File("static/logo.png")
+	})
+	static.GET("/css/:css", func(context echo.Context) error {
+		filename := context.Param("css")
+		if !strings.HasSuffix(filename, ".css") {
+			return context.String(404, "Not css file")
+		}
+		return context.File(fmt.Sprintf("static/css/%s", filename))
 	})
 
 	user := e.Group("/user")

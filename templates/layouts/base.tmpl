@@ -6,8 +6,15 @@
     <title>{{ block "title" . }} {{ end }} </title>
     {{ block "style" .}} {{ end }}
 </head>
-<body class="container mt-3">
-    {{ template "content" . }}
+<body>
+    <div class="container mt-3">
+        {{ template "content" . }}
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <span class="text-muted">The development of 'Cry Processor' was supported by Russian Science Foundation (RSF), Project 18-76-00028</span>
+        </div>
+    </footer>
 
     {{ block "js" . }} {{ end }}
 
